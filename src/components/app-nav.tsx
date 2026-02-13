@@ -110,7 +110,7 @@ export function AppNav({ userName }: { userName?: string }) {
 
         {/* Center: logo — absolutely centered on mobile, left-aligned on desktop */}
         <Link href="/dashboard" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:ml-0 flex shrink-0 items-center">
-          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-8 w-auto" priority />
+          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-10 w-auto" priority />
         </Link>
       </div>
     </header>
