@@ -56,6 +56,7 @@ export interface ThawReminder {
   reminder_sent: boolean;
   created_at: string;
   cancelled_at: string | null;
+  set_at_bureau: boolean;
 }
 
 export interface FreezeWorkflowProgress {

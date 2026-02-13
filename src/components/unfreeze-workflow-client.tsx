@@ -12,8 +12,11 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { BUREAU_INFO, type Bureau, type BureauStatus } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import React from "react";
 
 interface UnfreezeWorkflowClientProps {
@@ -64,6 +67,9 @@ export function UnfreezeWorkflowClient({
 }: UnfreezeWorkflowClientProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [unfreezeType, setUnfreezeType] = useState<"permanent" | "temporary">("permanent");
+  const [thawStartDate, setThawStartDate] = useState("");
+  const [thawEndDate, setThawEndDate] = useState("");
 
   const info = BUREAU_INFO[bureau];
   const currentStatus = bureauStatuses.find((s) => s.bureau === bureau);
@@ -73,6 +79,14 @@ export function UnfreezeWorkflowClient({
     setSaving(true);
     try {
       const supabase = createClient();
+
+      // Cancel any active thaw reminders for this bureau
+      await supabase
+        .from("thaw_reminders")
+        .update({ cancelled_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("bureau", bureau)
+        .is("cancelled_at", null);
 
       const { error } = await supabase.from("bureau_status").upsert(
         {
@@ -99,6 +113,47 @@ export function UnfreezeWorkflowClient({
       router.refresh();
     } catch {
       toast.error("Failed to update. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleConfirmTemporaryThaw() {
+    if (!thawStartDate || !thawEndDate) {
+      toast.error("Please select start and end dates.");
+      return;
+    }
+    if (thawEndDate < thawStartDate) {
+      toast.error("End date must be on or after the start date.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const supabase = createClient();
+
+      const { error } = await supabase.from("thaw_reminders").insert({
+        user_id: userId,
+        bureau,
+        thaw_start_date: thawStartDate,
+        thaw_end_date: thawEndDate,
+        set_at_bureau: true,
+      });
+
+      if (error) throw error;
+
+      await supabase.from("activity_log").insert({
+        user_id: userId,
+        bureau,
+        action: "thaw_scheduled",
+        source: "manual_update",
+      });
+
+      toast.success(`Temporary thaw logged for ${info.name}.`);
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      toast.error("Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -181,22 +236,79 @@ export function UnfreezeWorkflowClient({
 
       <div className="h-px bg-border" />
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="space-y-4">
+        <p className="text-sm font-medium">What did you do at the bureau?</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setUnfreezeType("permanent")}
+            className={cn(
+              "rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+              unfreezeType === "permanent"
+                ? "border-primary bg-primary/5 text-foreground"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            )}
+          >
+            <span className="font-medium">Permanently unfroze</span>
+            <p className="mt-0.5 text-xs text-muted-foreground">Freeze fully removed</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setUnfreezeType("temporary")}
+            className={cn(
+              "rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+              unfreezeType === "temporary"
+                ? "border-primary bg-primary/5 text-foreground"
+                : "border-border text-muted-foreground hover:border-primary/40"
+            )}
+          >
+            <span className="font-medium">Temporarily thawed</span>
+            <p className="mt-0.5 text-xs text-muted-foreground">Freeze lifts for a date range</p>
+          </button>
+        </div>
+
+        {unfreezeType === "temporary" && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="thaw-start" className="text-xs">Start date</Label>
+              <Input
+                id="thaw-start"
+                type="date"
+                value={thawStartDate}
+                onChange={(e) => setThawStartDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="thaw-end" className="text-xs">End date</Label>
+              <Input
+                id="thaw-end"
+                type="date"
+                value={thawEndDate}
+                onChange={(e) => setThawEndDate(e.target.value)}
+                min={thawStartDate || new Date().toISOString().split("T")[0]}
+              />
+            </div>
+          </div>
+        )}
+
         <Button
           size="sm"
-          onClick={handleConfirmUnfreeze}
+          onClick={unfreezeType === "permanent" ? handleConfirmUnfreeze : handleConfirmTemporaryThaw}
           disabled={saving}
           className="w-full"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          Confirm unfreeze
+          {unfreezeType === "permanent" ? "Confirm unfreeze" : "Log temporary thaw"}
         </Button>
-        <Link
-          href="/dashboard"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Cancel
-        </Link>
+        <div className="text-center">
+          <Link
+            href="/dashboard"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Cancel
+          </Link>
+        </div>
       </div>
     </div>
   );

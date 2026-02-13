@@ -695,24 +695,38 @@ export function FreezeWorkflowClient({
         <div className="h-px bg-border" />
 
         <div className="flex flex-col items-center gap-2">
-          <Button
-            size="sm"
-            onClick={() => markBureauFrozen(bureau)}
-            disabled={saving}
-            className="w-full"
-          >
-            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            Confirm freeze
-          </Button>
-          <button
-            onClick={() => {
-              setIssueModalBureau(bureau);
-              setIssueModalOpen(true);
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            I had issues
-          </button>
+          {status === "frozen" ? (
+            <Button
+              size="sm"
+              onClick={() => markBureauFrozen(bureau)}
+              disabled={saving}
+              className="w-full"
+            >
+              {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Continue
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                onClick={() => markBureauFrozen(bureau)}
+                disabled={saving}
+                className="w-full"
+              >
+                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Confirm freeze
+              </Button>
+              <button
+                onClick={() => {
+                  setIssueModalBureau(bureau);
+                  setIssueModalOpen(true);
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                I had issues
+              </button>
+            </>
+          )}
         </div>
 
         <NavigationFooter />

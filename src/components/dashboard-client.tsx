@@ -155,16 +155,27 @@ function getBureauStatus(
   return bureauStatuses.find((s) => s.bureau === bureau);
 }
 
+type EffectiveStatus = "frozen" | "not_frozen" | "thaw_scheduled" | "thaw_active";
+
 function getEffectiveStatus(
   bureauStatuses: BureauStatus[],
   thawReminders: ThawReminder[],
   bureau: Bureau
-): "frozen" | "not_frozen" | "thaw_scheduled" {
+): EffectiveStatus {
   const status = getBureauStatus(bureauStatuses, bureau);
   if (!status || status.status === "not_frozen") return "not_frozen";
 
-  const hasActiveThaw = thawReminders.some((r) => r.bureau === bureau);
-  if (hasActiveThaw) return "thaw_scheduled";
+  const today = new Date().toISOString().split("T")[0];
+  const bureauReminders = thawReminders.filter(
+    (r) => r.bureau === bureau && r.thaw_end_date >= today
+  );
+
+  const activeBureauThaw = bureauReminders.find(
+    (r) => r.set_at_bureau && r.thaw_start_date <= today && r.thaw_end_date >= today
+  );
+  if (activeBureauThaw) return "thaw_active";
+
+  if (bureauReminders.length > 0) return "thaw_scheduled";
 
   return "frozen";
 }
@@ -451,9 +462,19 @@ function BureauCard({
   const info = BUREAU_INFO[bureau];
   const status = getBureauStatus(bureauStatuses, bureau);
   const effectiveStatus = getEffectiveStatus(bureauStatuses, thawReminders, bureau);
-  const bureauReminders = thawReminders.filter((r) => r.bureau === bureau);
+  const today = new Date().toISOString().split("T")[0];
+  const bureauReminders = thawReminders.filter(
+    (r) => r.bureau === bureau && r.thaw_end_date >= today
+  );
 
-  const statusConfig = {
+  const statusConfig: Record<EffectiveStatus, {
+    label: string;
+    bg: string;
+    text: string;
+    border: string;
+    icon: typeof ShieldCheck;
+    badgeCls: string;
+  }> = {
     frozen: {
       label: "Frozen",
       bg: "bg-green-500/10",
@@ -477,6 +498,14 @@ function BureauCard({
       border: "border-yellow-500/20",
       icon: ShieldAlert,
       badgeCls: "border-yellow-500 text-yellow-700 dark:text-yellow-400",
+    },
+    thaw_active: {
+      label: "Temporarily Thawed",
+      bg: "bg-amber-500/10",
+      text: "text-amber-600 dark:text-amber-400",
+      border: "border-amber-500/20",
+      icon: ShieldOff,
+      badgeCls: "border-amber-500 text-amber-700 dark:text-amber-400",
     },
   };
 
@@ -511,25 +540,37 @@ function BureauCard({
 
       {bureauReminders.length > 0 && (
         <div className="mt-4 space-y-2">
-          {bureauReminders.map((reminder) => (
-            <div
-              key={reminder.id}
-              className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-xs"
-            >
-              <div className="flex items-center gap-2">
-                <CalendarClock className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400" />
-                <span>
-                  {formatDate(reminder.thaw_start_date)} - {formatDate(reminder.thaw_end_date)}
-                </span>
-              </div>
-              <button
-                onClick={() => onCancelThaw(reminder)}
-                className="text-muted-foreground hover:text-destructive transition-colors"
+          {bureauReminders.map((reminder) => {
+            const today = new Date().toISOString().split("T")[0];
+            const isActive = reminder.set_at_bureau && reminder.thaw_start_date <= today && reminder.thaw_end_date >= today;
+            return (
+              <div
+                key={reminder.id}
+                className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-xs"
               >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center gap-2">
+                  <CalendarClock className={`h-3.5 w-3.5 ${isActive ? "text-amber-500" : "text-yellow-600 dark:text-yellow-400"}`} />
+                  <span>
+                    {formatDate(reminder.thaw_start_date)} – {formatDate(reminder.thaw_end_date)}
+                  </span>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    {reminder.set_at_bureau ? "Bureau" : "Reminder"}
+                  </Badge>
+                  {isActive && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500 text-amber-600 dark:text-amber-400">
+                      Active
+                    </Badge>
+                  )}
+                </div>
+                <button
+                  onClick={() => onCancelThaw(reminder)}
+                  className="text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -579,13 +620,13 @@ export function DashboardClient({
     useState<ThawReminder | null>(null);
 
   const frozenCount = ALL_BUREAUS.filter((b) => {
-    const s = getBureauStatus(bureauStatuses, b);
-    return s?.status === "frozen";
+    const eff = getEffectiveStatus(bureauStatuses, thawReminders, b);
+    return eff === "frozen" || eff === "thaw_scheduled" || eff === "thaw_active";
   }).length;
 
   const frozenBureaus = ALL_BUREAUS.filter((b) => {
-    const s = getBureauStatus(bureauStatuses, b);
-    return s?.status === "frozen";
+    const eff = getEffectiveStatus(bureauStatuses, thawReminders, b);
+    return eff === "frozen" || eff === "thaw_scheduled" || eff === "thaw_active";
   });
 
   function openCancelThawModal(reminder: ThawReminder) {
