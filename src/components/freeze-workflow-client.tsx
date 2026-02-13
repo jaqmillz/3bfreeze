@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   ExternalLink,
@@ -44,11 +44,11 @@ import { cn } from "@/lib/utils";
 // ---------------------------------------------------------------------------
 
 const STEPS: { key: WorkflowStep; label: string }[] = [
-  { key: "checklist", label: "Checklist" },
+  { key: "checklist", label: "Start" },
   { key: "equifax", label: "Equifax" },
   { key: "transunion", label: "TransUnion" },
   { key: "experian", label: "Experian" },
-  { key: "complete", label: "Completion" },
+  { key: "complete", label: "Done" },
 ];
 
 const CHECKLIST_ITEMS = [
@@ -89,12 +89,19 @@ export function FreezeWorkflowClient({
   initialBureauStatuses,
 }: FreezeWorkflowClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   // Derive initial step from saved progress or default to checklist.
+  // If a ?bureau= query param is provided, jump directly to that bureau step.
   // If the workflow was previously completed but not all bureaus are frozen,
   // reset to the first unfrozen bureau so the user can retry.
   const [currentStep, setCurrentStep] = useState<WorkflowStep>(() => {
+    const bureauParam = searchParams.get("bureau") as Bureau | null;
+    if (bureauParam && ["equifax", "transunion", "experian"].includes(bureauParam)) {
+      return bureauParam;
+    }
+
     const saved = initialProgress?.current_step ?? "checklist";
     if (saved === "complete") {
       const allFrozen = initialBureauStatuses.every(
@@ -363,26 +370,66 @@ export function FreezeWorkflowClient({
   // Stepper header
   // ---------------------------------------------------------------------------
 
+  function isStepCompleted(stepKey: WorkflowStep): boolean {
+    if (stepKey === "checklist") return allChecked || (initialProgress?.checklist_completed ?? false);
+    if (stepKey === "complete") {
+      return getBureauStatus("equifax") === "frozen" &&
+        getBureauStatus("transunion") === "frozen" &&
+        getBureauStatus("experian") === "frozen";
+    }
+    return getBureauStatus(stepKey as Bureau) === "frozen";
+  }
+
+  function isStepSkipped(stepKey: WorkflowStep): boolean {
+    if (stepKey === "checklist" || stepKey === "complete") return false;
+    const bureau = stepKey as Bureau;
+    // A bureau step is "skipped" if we've moved past it but it's not frozen
+    const idx = STEPS.findIndex((s) => s.key === stepKey);
+    if (idx >= stepIndex) return false;
+    return getBureauStatus(bureau) !== "frozen";
+  }
+
   function StepperHeader() {
+    const arrowSize = 10; // px for the chevron point
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex items-stretch">
         {STEPS.map((step, idx) => {
-          const isCompleted = idx < stepIndex;
+          const completed = isStepCompleted(step.key);
           const isCurrent = idx === stepIndex;
+          const skipped = isStepSkipped(step.key);
+          const isFirst = idx === 0;
+          const isLast = idx === STEPS.length - 1;
+
+          let bg = "var(--color-muted)";
+          let fg = "var(--color-muted-foreground)";
+          if (skipped) { bg = "oklch(0.705 0.213 47.604)"; fg = "#fff"; } // orange-500
+          else if (isCurrent) { bg = "oklch(from var(--color-primary) l c h / 0.6)"; fg = "#fff"; }
+          else if (completed) { bg = "var(--color-primary)"; fg = "#fff"; }
+
+          // Clip-path: chevron arrow shape
+          // First item: flat left, arrow right
+          // Middle items: notch left, arrow right
+          // Last item: notch left, flat right
+          const clipPath = isFirst
+            ? `polygon(0 0, calc(100% - ${arrowSize}px) 0, 100% 50%, calc(100% - ${arrowSize}px) 100%, 0 100%)`
+            : isLast
+            ? `polygon(0 0, 100% 0, 100% 100%, 0 100%, ${arrowSize}px 50%)`
+            : `polygon(0 0, calc(100% - ${arrowSize}px) 0, 100% 50%, calc(100% - ${arrowSize}px) 100%, 0 100%, ${arrowSize}px 50%)`;
+
           return (
             <button
               key={step.key}
-              onClick={() => {
-                if (idx <= stepIndex) navigateStep(step.key);
+              onClick={() => navigateStep(step.key)}
+              className="flex h-9 flex-1 items-center justify-center text-xs font-medium transition-all cursor-pointer"
+              style={{
+                clipPath,
+                backgroundColor: bg,
+                color: fg,
+                marginLeft: isFirst ? 0 : -1,
               }}
-              disabled={idx > stepIndex}
-              className={cn(
-                "flex h-1.5 flex-1 rounded-full transition-all",
-                isCompleted && "bg-primary cursor-pointer",
-                isCurrent && "bg-primary",
-                !isCurrent && !isCompleted && "bg-muted"
-              )}
-            />
+            >
+              {step.label}
+            </button>
           );
         })}
       </div>
@@ -581,25 +628,28 @@ export function FreezeWorkflowClient({
 
     const instructions: Record<Bureau, (string | React.ReactNode)[]> = {
       equifax: [
-        <span key="eq-1">Go to the <a href={BUREAU_INFO.equifax.freezeUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Equifax security freeze page</a>.</span>,
-        `Click "Place a Security Freeze."`,
+        <span key="eq-1">Go to the <a href={BUREAU_INFO.equifax.freezeUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Equifax security freeze page</a> and click &quot;Place a Security Freeze.&quot;</span>,
         accountStep,
-        `Verify your identity by answering the security questions.`,
-        `Confirm the freeze is in place. You should see a confirmation screen.`,
+        `Enter your personal information: name, date of birth, SSN, address, and phone number.`,
+        `Verify your identity via a one-time passcode sent by text or email.`,
+        `Review the freeze details and click "Place a Freeze" to confirm.`,
+        `Download your confirmation PDF. Equifax will also email a confirmation.`,
       ],
       transunion: [
-        <span key="tu-1">Go to the <a href={BUREAU_INFO.transunion.freezeUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">TransUnion credit freeze page</a>.</span>,
-        `Click "Add freeze."`,
+        <span key="tu-1">Go to the <a href={BUREAU_INFO.transunion.freezeUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">TransUnion credit freeze page</a> and click &quot;Credit Freeze.&quot;</span>,
         accountStep,
-        `Complete the identity verification process.`,
-        `Confirm the freeze. TransUnion will display a confirmation and send an email.`,
+        `Enter your personal information: name, address, date of birth, last 4 of SSN, email, and phone number.`,
+        `Create a password and set a security question.`,
+        `On the freeze status page, click "Add Freeze."`,
+        `Review the freeze details, then click "Continue" to confirm. You should see a green "Freeze Added" confirmation.`,
       ],
       experian: [
         <span key="ex-1">Go to the <a href={BUREAU_INFO.experian.freezeUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Experian security freeze center</a>.</span>,
+        `Verify your phone number via text or call.`,
         accountStep,
-        `Click "Add a Security Freeze."`,
-        `Verify your identity by answering the knowledge-based questions.`,
-        `Confirm the freeze is placed. Save your confirmation for your records.`,
+        <span key="ex-4">Choose the free &quot;Experian CreditWorks Basic&quot; membership. Set a password, security question, and 4-digit PIN.</span>,
+        `Review your pre-filled personal information and click "Submit and Continue."`,
+        `On the Security Freeze page, click "Frozen" to activate your freeze.`,
       ],
     };
 

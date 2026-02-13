@@ -186,18 +186,12 @@ export function HistoryClient({ entries }: { entries: ActivityLogEntry[] }) {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[10px] text-muted-foreground/60">
-                  {SOURCE_LABELS[entry.source]}
-                </span>
-                <time
-                  className="text-xs text-muted-foreground"
-                  dateTime={entry.created_at}
-                  title={formatDate(entry.created_at)}
-                >
-                  {formatRelativeDate(entry.created_at)}
-                </time>
-              </div>
+              <time
+                className="text-xs text-muted-foreground shrink-0"
+                dateTime={entry.created_at}
+              >
+                {formatDate(entry.created_at)}
+              </time>
             </div>
           ))}
         </div>

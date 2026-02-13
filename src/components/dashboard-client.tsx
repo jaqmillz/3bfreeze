@@ -536,7 +536,7 @@ function BureauCard({
       <div className="mt-4 flex items-center gap-2">
         {effectiveStatus === "not_frozen" ? (
           <Link
-            href="/freeze-workflow"
+            href={`/freeze-workflow?bureau=${bureau}`}
             className="text-xs font-medium text-primary hover:underline"
           >
             Freeze

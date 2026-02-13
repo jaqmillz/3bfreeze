@@ -1,14 +1,26 @@
-import Link from "next/link";
-import { Shield } from "lucide-react";
+"use client";
 
-export function Footer() {
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Shield } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+export function Footer({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
+  const router = useRouter();
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
+
   return (
     <footer className="border-t bg-primary/[0.04]">
       <div className="mx-auto max-w-5xl px-6 py-5 sm:py-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-2 font-bold text-sm">
+            <Link href={isAuthenticated ? "/dashboard" : "/"} className="inline-flex items-center gap-2 font-bold text-sm">
               <Shield className="h-4 w-4 text-primary" />
               3Bfreeze
             </Link>
@@ -24,19 +36,25 @@ export function Footer() {
             </h4>
             <ul className="mt-2 space-y-1.5">
               <li>
-                <Link href="/signup" className="text-xs text-foreground/70 hover:text-foreground transition-colors">
+                <Link href={isAuthenticated ? "/freeze-workflow" : "/signup"} className="text-xs text-foreground/70 hover:text-foreground transition-colors">
                   Get Started
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="text-xs text-foreground/70 hover:text-foreground transition-colors">
-                  Log In
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-xs text-foreground/70 hover:text-foreground transition-colors">
                   About
                 </Link>
+              </li>
+              <li>
+                {isAuthenticated ? (
+                  <button onClick={handleSignOut} className="text-xs text-foreground/70 hover:text-foreground transition-colors">
+                    Log Out
+                  </button>
+                ) : (
+                  <Link href="/login" className="text-xs text-foreground/70 hover:text-foreground transition-colors">
+                    Log In
+                  </Link>
+                )}
               </li>
             </ul>
           </div>
