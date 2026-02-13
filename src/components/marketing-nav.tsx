@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -14,7 +14,7 @@ export function MarketingNav() {
     <header className="sticky top-0 z-50 w-full bg-primary text-white">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex shrink-0 items-center">
-          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-16 w-auto" priority />
+          <img src="/logo-white.png" alt="3Bfreeze" className="h-14 w-auto" />
         </Link>
 
         {/* Desktop */}

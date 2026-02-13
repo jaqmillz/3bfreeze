@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -110,7 +110,7 @@ export function AppNav({ userName }: { userName?: string }) {
 
         {/* Center: logo — absolutely centered on mobile, left-aligned on desktop */}
         <Link href="/dashboard" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:ml-0 flex shrink-0 items-center">
-          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-16 w-auto" priority />
+          <img src="/logo-white.png" alt="3Bfreeze" className="h-14 w-auto" />
         </Link>
       </div>
     </header>
