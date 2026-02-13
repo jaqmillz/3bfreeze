@@ -24,15 +24,9 @@ export default function Home() {
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center px-6 py-20 sm:py-28">
         <HeroGradient />
-        <FadeUp className="relative z-10">
-          <div className="mx-auto mb-6 flex w-fit items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-xs text-muted-foreground backdrop-blur">
-            <Shield className="h-3 w-3 text-primary" />
-            Free by federal law
-          </div>
-        </FadeUp>
         <FadeUp delay={0.1} className="relative z-10">
           <h1 className="max-w-3xl text-center text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Stop ID theft before{" "}
+            Stop Identity Theft before{" "}
             <span className="text-primary">it starts</span>
           </h1>
         </FadeUp>

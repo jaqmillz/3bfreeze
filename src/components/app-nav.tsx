@@ -45,7 +45,7 @@ export function AppNav({ userName }: { userName?: string }) {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-primary text-white">
-      <div className="relative flex h-14 items-center px-6">
+      <div className="relative flex h-20 items-center px-6">
         {/* Left: hamburger (mobile only) */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -110,7 +110,7 @@ export function AppNav({ userName }: { userName?: string }) {
 
         {/* Center: logo — absolutely centered on mobile, left-aligned on desktop */}
         <Link href="/dashboard" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:ml-0 flex shrink-0 items-center">
-          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-10 w-auto" priority />
+          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-16 w-auto" priority />
         </Link>
       </div>
     </header>
@@ -137,7 +137,7 @@ export function AppSidebar({ userName }: { userName?: string }) {
   }
 
   return (
-    <aside className="hidden lg:flex sticky top-14 h-[calc(100vh-3.5rem)] w-52 shrink-0 flex-col border-r bg-primary/[0.06] px-3 py-4">
+    <aside className="hidden lg:flex sticky top-20 h-[calc(100vh-5rem)] w-52 shrink-0 flex-col border-r bg-primary/[0.06] px-3 py-4">
       <nav className="flex flex-1 flex-col gap-0.5">
         {navLinks.map((link) => (
           <Link key={link.href} href={link.href}>

@@ -12,9 +12,9 @@ export function MarketingNav() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-primary text-white">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex shrink-0 items-center">
-          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-10 w-auto" priority />
+          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-16 w-auto" priority />
         </Link>
 
         {/* Desktop */}
