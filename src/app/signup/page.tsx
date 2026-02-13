@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Shield, Loader2, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import { Loader2, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/animate";
-import { HeroGradient } from "@/components/gradient-bg";
 
 interface FieldErrors {
   firstName?: string;
@@ -162,14 +162,16 @@ export default function SignupPage() {
   const isDisabled = isLoading || isOAuthLoading !== null;
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-8">
-      <HeroGradient />
-      <FadeIn className="relative z-10 w-full max-w-md">
-        <Link href="/" className="mb-6 inline-flex items-center gap-2 text-sm font-bold">
-          <Shield className="h-4 w-4 text-primary" />
-          3Bfreeze
+    <div className="flex min-h-screen flex-col items-center bg-primary px-4">
+      {/* Logo centered between top of screen and top of card */}
+      <div className="flex flex-1 items-center justify-center">
+        <Link href="/">
+          <Image src="/logo-white.png" alt="3Bfreeze" width={600} height={180} className="h-40 w-auto" />
         </Link>
-        <Card className="rounded-2xl border-primary/10 bg-card/80 shadow-sm backdrop-blur-sm">
+      </div>
+
+      <FadeIn className="w-full max-w-md">
+        <Card className="rounded-2xl border-0 shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-bold">Create your account</CardTitle>
           <CardDescription>Get started with 3Bfreeze for free</CardDescription>
@@ -434,6 +436,9 @@ export default function SignupPage() {
         </CardFooter>
         </Card>
       </FadeIn>
+
+      {/* Bottom spacer equal to top so card is vertically centered */}
+      <div className="flex-1" />
     </div>
   );
 }

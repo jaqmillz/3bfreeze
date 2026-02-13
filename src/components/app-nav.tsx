@@ -45,100 +45,73 @@ export function AppNav({ userName }: { userName?: string }) {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-primary text-white">
-      <div className="flex h-14 items-center justify-between px-6">
-        {/* Left: hamburger (mobile only) + logo */}
-        <div className="flex items-center gap-2">
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 lg:hidden text-white hover:bg-white/10 hover:text-white">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex w-[260px] flex-col pt-8">
-              <nav className="flex flex-1 flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        "w-full justify-start gap-2.5 h-10 text-sm",
-                        pathname.startsWith(link.href)
-                          ? "bg-accent text-accent-foreground"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      <link.icon className="h-4 w-4" />
-                      {link.label}
-                    </Button>
-                  </Link>
-                ))}
-              </nav>
-
-              {/* User section at bottom */}
-              <div className="border-t pt-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
-                      <Avatar className="h-7 w-7">
-                        <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{userName || "Account"}</span>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" align="start" className="w-44">
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" onClick={() => setOpen(false)}>
-                        <Settings className="mr-2 h-3.5 w-3.5" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setOpen(false);
-                        handleSignOut();
-                      }}
-                    >
-                      <LogOut className="mr-2 h-3.5 w-3.5" />
-                      Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          <Link href="/dashboard" className="flex shrink-0 items-center">
-            <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-[120px] w-auto" priority />
-          </Link>
-        </div>
-
-        {/* Avatar only visible on mobile (sidebar has it on desktop) */}
-        <div className="flex items-center lg:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 gap-2 px-2 text-white hover:bg-white/10 hover:text-white">
-                <Avatar className="h-6 w-6 border border-white/30">
-                  <AvatarFallback className="bg-white/15 text-white text-[10px]">{initials}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  <Settings className="mr-2 h-3.5 w-3.5" />
-                  Settings
+      <div className="relative flex h-14 items-center px-6">
+        {/* Left: hamburger (mobile only) */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 lg:hidden text-white hover:bg-white/10 hover:text-white">
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="flex w-auto min-w-[180px] max-w-[220px] flex-col pt-8">
+            <nav className="flex flex-1 flex-col gap-1">
+              {navLinks.map((link) => (
+                <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start gap-2.5 h-10 text-sm",
+                      pathname.startsWith(link.href)
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    <link.icon className="h-4 w-4" />
+                    {link.label}
+                  </Button>
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-3.5 w-3.5" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+              ))}
+            </nav>
+
+            {/* User section at bottom */}
+            <div className="border-t pt-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{userName || "Account"}</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="top" align="start" className="w-44">
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" onClick={() => setOpen(false)}>
+                      <Settings className="mr-2 h-3.5 w-3.5" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    <LogOut className="mr-2 h-3.5 w-3.5" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Center: logo — absolutely centered on mobile, left-aligned on desktop */}
+        <Link href="/dashboard" className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 lg:ml-0 flex shrink-0 items-center">
+          <Image src="/logo-white.png" alt="3Bfreeze" width={400} height={120} className="h-8 w-auto" priority />
+        </Link>
       </div>
     </header>
   );
