@@ -1,8 +1,7 @@
 -- Three-Bureau Credit Freeze - Initial Schema
 -- Run against Supabase PostgreSQL
 
--- Enable UUID generation
-create extension if not exists "uuid-ossp";
+-- Uses gen_random_uuid() which is built into PostgreSQL 13+
 
 -- ============================================================
 -- Users profile table (extends Supabase Auth)
@@ -73,7 +72,7 @@ create type public.bureau_enum as enum ('equifax', 'transunion', 'experian');
 create type public.freeze_status_enum as enum ('frozen', 'not_frozen');
 
 create table public.bureau_status (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   bureau public.bureau_enum not null,
   status public.freeze_status_enum default 'not_frozen' not null,
@@ -105,7 +104,7 @@ create policy "Users can delete own bureau status"
 -- Thaw Reminders
 -- ============================================================
 create table public.thaw_reminders (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   bureau public.bureau_enum not null,
   thaw_start_date date not null,
@@ -139,7 +138,7 @@ create policy "Users can delete own thaw reminders"
 create type public.workflow_step_enum as enum ('checklist', 'equifax', 'transunion', 'experian', 'complete');
 
 create table public.freeze_workflow_progress (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null unique,
   current_step public.workflow_step_enum default 'checklist' not null,
   checklist_completed boolean default false not null,
@@ -173,7 +172,7 @@ create policy "Users can delete own workflow progress"
 create type public.issue_type_enum as enum ('identity_verification', 'site_error', 'asked_to_pay', 'confused', 'other');
 
 create table public.freeze_issues (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   bureau public.bureau_enum not null,
   issue_type public.issue_type_enum not null,
@@ -198,7 +197,7 @@ create type public.activity_action_enum as enum ('frozen', 'unfrozen', 'thaw_sch
 create type public.activity_source_enum as enum ('freeze_workflow', 'manual_update', 'scheduled_thaw');
 
 create table public.activity_log (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null,
   bureau public.bureau_enum not null,
   action public.activity_action_enum not null,
@@ -220,7 +219,7 @@ create policy "Users can insert own activity log"
 -- Contact Submissions (public, no auth required)
 -- ============================================================
 create table public.contact_submissions (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   name text not null,
   email text not null,
   subject text not null,
@@ -238,7 +237,7 @@ create policy "Anyone can insert contact submissions"
 -- Notification Preferences
 -- ============================================================
 create table public.notification_preferences (
-  id uuid default uuid_generate_v4() primary key,
+  id uuid default gen_random_uuid() primary key,
   user_id uuid references public.users(id) on delete cascade not null unique,
   refreeze_reminders boolean default true not null,
   thaw_expiration_alerts boolean default true not null,

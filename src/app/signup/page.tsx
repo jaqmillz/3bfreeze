@@ -125,10 +125,7 @@ export default function SignupPage() {
         return;
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("3bfreeze_verify_email", email);
-      }
-      router.push("/verify-email");
+      router.push("/dashboard");
     } catch {
       setGeneralError("An unexpected error occurred. Please try again.");
     } finally {
