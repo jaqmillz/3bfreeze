@@ -26,7 +26,8 @@ export default function Home() {
         <HeroGradient />
         <FadeUp delay={0.1} className="relative z-10">
           <h1 className="max-w-3xl text-center text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Stop Identity Theft before{" "}
+            Stop Identity Theft before
+            <br />
             <span className="text-primary">it starts</span>
           </h1>
         </FadeUp>
