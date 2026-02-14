@@ -40,6 +40,11 @@ export default async function DashboardPage() {
   const thawReminders = thawRemindersResult.data ?? [];
   const workflowProgress = workflowProgressResult.data ?? null;
 
+  // First-time users: no bureau statuses and no workflow progress → go straight to freeze workflow
+  if (bureauStatuses.length === 0 && !workflowProgress) {
+    redirect("/freeze-workflow");
+  }
+
   const userName =
     profileResult.data?.first_name && profileResult.data?.last_name
       ? `${profileResult.data.first_name} ${profileResult.data.last_name}`

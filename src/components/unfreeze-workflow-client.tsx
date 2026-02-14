@@ -54,9 +54,9 @@ const unfreezeInstructions: Record<Bureau, (string | React.ReactNode)[]> = {
     <span key="ex-1">Log in to your account on the {bureauLink("Experian security freeze center", BUREAU_INFO.experian.unfreezeUrl)}.</span>,
     'Navigate to the Security Freeze page. Your status will show "Your file is frozen."',
     'To permanently unfreeze: click the "Unfrozen" tab to remove the freeze immediately.',
-    'To temporarily thaw: click "Schedule a thaw," select your date range, and click "Schedule thaw."',
-    "The thaw starts immediately and ends at 11:59 PM CT on your selected end date.",
-    'You can cancel a scheduled thaw anytime by clicking "Remove thaw."',
+    'To temporarily unfreeze: click "Schedule a thaw," select your date range, and click "Schedule thaw." (Experian uses the term "thaw" on their site.)',
+    "The unfreeze starts immediately and ends at 11:59 PM CT on your selected end date.",
+    'You can cancel a scheduled unfreeze anytime by clicking "Remove thaw" on Experian\'s site.',
   ],
 };
 
@@ -149,7 +149,7 @@ export function UnfreezeWorkflowClient({
         source: "manual_update",
       });
 
-      toast.success(`Temporary thaw logged for ${info.name}.`);
+      toast.success(`Temporary unfreeze logged for ${info.name}.`);
       router.push("/dashboard");
       router.refresh();
     } catch {
@@ -262,7 +262,7 @@ export function UnfreezeWorkflowClient({
                 : "border-border text-muted-foreground hover:border-primary/40"
             )}
           >
-            <span className="font-medium">Temporarily thawed</span>
+            <span className="font-medium">Temporarily unfrozen</span>
             <p className="mt-0.5 text-xs text-muted-foreground">Freeze lifts for a date range</p>
           </button>
         </div>
@@ -299,7 +299,7 @@ export function UnfreezeWorkflowClient({
           className="w-full"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {unfreezeType === "permanent" ? "Confirm unfreeze" : "Log temporary thaw"}
+          {unfreezeType === "permanent" ? "Confirm unfreeze" : "Log temporary unfreeze"}
         </Button>
         <div className="text-center">
           <Link

@@ -44,7 +44,7 @@ export default function TermsPage() {
               workflows to help you freeze and unfreeze your credit files at the
               three major credit bureaus: Equifax, TransUnion, and Experian. The
               service includes freeze status tracking, step-by-step
-              instructions, and thaw expiration reminders.
+              instructions, and unfreeze expiration reminders.
             </p>
           </section>
 
@@ -68,7 +68,7 @@ export default function TermsPage() {
             </h2>
             <p className="mt-3 leading-7 text-muted-foreground">
               3Bfreeze is a guidance tool. We do not directly freeze or unfreeze
-              your credit on your behalf. All freeze and thaw actions are
+              your credit on your behalf. All freeze and unfreeze actions are
               performed by you directly on each credit bureau&#39;s website or
               phone system. We do not control, operate, or have any affiliation
               with Equifax, TransUnion, or Experian. We cannot guarantee the

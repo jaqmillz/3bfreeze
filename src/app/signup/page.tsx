@@ -298,7 +298,7 @@ export default function SignupPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="flex items-start gap-2">
+              <div className="flex items-center gap-2">
                 <Checkbox
                   id="terms"
                   checked={agreedToTerms}
@@ -309,28 +309,31 @@ export default function SignupPage() {
                   }}
                   disabled={isDisabled}
                   aria-invalid={!!fieldErrors.terms}
+                  className="shrink-0"
                 />
-                <Label
+                <label
                   htmlFor="terms"
-                  className="text-sm font-normal leading-snug text-muted-foreground"
+                  className="text-xs leading-normal text-muted-foreground cursor-pointer select-none"
                 >
                   I agree to the{" "}
-                  <Link
+                  <a
                     href="/terms"
-                    className="font-medium text-primary hover:underline"
                     target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
                   >
                     Terms of Service
-                  </Link>{" "}
+                  </a>{" "}
                   and{" "}
-                  <Link
+                  <a
                     href="/privacy"
-                    className="font-medium text-primary hover:underline"
                     target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
                   >
                     Privacy Policy
-                  </Link>
-                </Label>
+                  </a>
+                </label>
               </div>
               {fieldErrors.terms && (
                 <p className="text-xs text-destructive">{fieldErrors.terms}</p>

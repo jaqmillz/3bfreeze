@@ -46,7 +46,7 @@ import { cn } from "@/lib/utils";
 const STEPS: { key: WorkflowStep; label: string }[] = [
   { key: "checklist", label: "Start" },
   { key: "equifax", label: "Equifax" },
-  { key: "transunion", label: "TransUnion" },
+  { key: "transunion", label: "TU" },
   { key: "experian", label: "Experian" },
   { key: "complete", label: "Done" },
 ];
@@ -491,7 +491,7 @@ export function FreezeWorkflowClient({
         <div>
           <h2 className="text-xl font-bold tracking-tight">Before you start</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Have these ready for each bureau. ~5 min per bureau.
+            We&apos;ll walk you through freezing your credit at each bureau. Have these ready — it takes about 5 minutes per bureau.
           </p>
         </div>
 

@@ -269,7 +269,7 @@ function ScheduleThawModal({
 
       await supabase.from("activity_log").insert(activityEntries);
 
-      toast.success("Thaw scheduled.");
+      toast.success("Temporary unfreeze scheduled.");
       onOpenChange(false);
       router.refresh();
     } catch {
@@ -286,9 +286,9 @@ function ScheduleThawModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-base">Schedule thaw</DialogTitle>
+          <DialogTitle className="text-base">Schedule temporary unfreeze</DialogTitle>
           <DialogDescription className="text-xs">
-            Set a window to temporarily unfreeze. You&#39;ll still need to thaw at each bureau yourself.
+            Set a window to temporarily unfreeze. You&#39;ll still need to unfreeze at each bureau yourself.
           </DialogDescription>
         </DialogHeader>
 
@@ -397,7 +397,7 @@ function CancelThawModal({
         source: "scheduled_thaw",
       });
 
-      toast.success("Thaw cancelled.");
+      toast.success("Unfreeze cancelled.");
       onOpenChange(false);
       router.refresh();
     } catch {
@@ -413,7 +413,7 @@ function CancelThawModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-base">Cancel thaw</DialogTitle>
+          <DialogTitle className="text-base">Cancel unfreeze</DialogTitle>
           <DialogDescription className="text-xs">
             {BUREAU_INFO[reminder.bureau].name} &middot; {formatDate(reminder.thaw_start_date)} - {formatDate(reminder.thaw_end_date)}
           </DialogDescription>
@@ -431,7 +431,7 @@ function CancelThawModal({
             onClick={handleCancel}
             disabled={cancelling}
           >
-            {cancelling ? "Cancelling..." : "Cancel thaw"}
+            {cancelling ? "Cancelling..." : "Cancel unfreeze"}
           </Button>
         </div>
       </DialogContent>
@@ -487,7 +487,7 @@ function BureauCard({
       badgeCls: "",
     },
     thaw_scheduled: {
-      label: "Thaw Scheduled",
+      label: "Unfreeze Scheduled",
       bg: "bg-yellow-500/10",
       text: "text-yellow-600 dark:text-yellow-400",
       border: "border-yellow-500/20",
@@ -495,7 +495,7 @@ function BureauCard({
       badgeCls: "border-yellow-500 text-yellow-700 dark:text-yellow-400",
     },
     thaw_active: {
-      label: "Temporarily Thawed",
+      label: "Temporarily Unfrozen",
       bg: "bg-amber-500/10",
       text: "text-amber-600 dark:text-amber-400",
       border: "border-amber-500/20",
@@ -525,12 +525,21 @@ function BureauCard({
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <StatusIcon className={`h-4 w-4 ${config.text}`} />
-          <Badge variant={effectiveStatus === "not_frozen" ? "secondary" : "outline"} className={config.badgeCls}>
-            {config.label}
-          </Badge>
-        </div>
+        {effectiveStatus === "not_frozen" ? (
+          <Link href={`/freeze-workflow?bureau=${bureau}`} className="flex items-center gap-2 transition-opacity hover:opacity-70">
+            <StatusIcon className={`h-4 w-4 ${config.text}`} />
+            <Badge variant="secondary" className={config.badgeCls}>
+              {config.label}
+            </Badge>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2">
+            <StatusIcon className={`h-4 w-4 ${config.text}`} />
+            <Badge variant="outline" className={config.badgeCls}>
+              {config.label}
+            </Badge>
+          </div>
+        )}
       </div>
 
       {bureauReminders.length > 0 && (
@@ -647,7 +656,7 @@ export function DashboardClient({
               onClick={() => setThawModalOpen(true)}
               className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
-              Schedule thaw
+              Schedule temporary unfreeze
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </button>
           )}
@@ -727,7 +736,7 @@ export function DashboardClient({
       {thawReminders.length > 0 && (
         <div>
           <h2 className="mb-4 text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Upcoming Thaws
+            Upcoming Unfreezes
           </h2>
           <div className="space-y-2">
             {thawReminders.map((reminder) => (

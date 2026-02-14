@@ -28,8 +28,8 @@ const BUREAU_LABELS: Record<Bureau, string> = {
 const ACTION_LABELS: Record<ActivityAction, string> = {
   frozen: "Frozen",
   unfrozen: "Unfrozen",
-  thaw_scheduled: "Thaw scheduled",
-  thaw_cancelled: "Thaw cancelled",
+  thaw_scheduled: "Unfreeze scheduled",
+  thaw_cancelled: "Unfreeze cancelled",
   issue_reported: "Issue reported",
 };
 
@@ -37,8 +37,8 @@ const ACTION_FILTER_LABELS: Record<string, string> = {
   all: "All actions",
   frozen: "Frozen",
   unfrozen: "Unfrozen",
-  thaw_scheduled: "Thaw scheduled",
-  thaw_cancelled: "Thaw cancelled",
+  thaw_scheduled: "Unfreeze scheduled",
+  thaw_cancelled: "Unfreeze cancelled",
 };
 
 const SOURCE_LABELS: Record<ActivitySource, string> = {

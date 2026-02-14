@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, Settings, LogOut, LayoutDashboard, Snowflake } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -53,7 +53,8 @@ export function AppNav({ userName }: { userName?: string }) {
               <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="flex w-auto min-w-[180px] max-w-[220px] flex-col pt-8">
+          <SheetContent side="left" className="flex w-auto min-w-[180px] max-w-[220px] flex-col pt-8" aria-describedby={undefined}>
+            <SheetTitle className="sr-only">Navigation</SheetTitle>
             <nav className="flex flex-1 flex-col gap-1">
               {navLinks.map((link) => (
                 <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>

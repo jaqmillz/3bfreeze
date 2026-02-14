@@ -91,35 +91,29 @@ export default function Home() {
           {[
             {
               icon: Shield,
-              step: "01",
-              title: "Create account",
-              desc: "Sign up in seconds. No credit card needed.",
+              title: "Create your account",
+              desc: "Sign up in seconds. No credit card needed — freezing your credit is free by law.",
             },
             {
               icon: Snowflake,
-              step: "02",
-              title: "Freeze all three",
-              desc: "Guided workflow walks you through each bureau.",
+              title: "Freeze your credit bureaus",
+              desc: "A credit freeze locks your credit files so no one can open accounts in your name. We walk you through freezing all three bureaus.",
             },
             {
               icon: Bell,
-              step: "03",
-              title: "Stay protected",
-              desc: "Track freeze status and get thaw reminders.",
+              title: "Grant or revoke access anytime",
+              desc: "Need to apply for a loan or credit card? Temporarily lift your freeze, then re-freeze when you're done.",
             },
-          ].map(({ icon: Icon, step, title, desc }) => (
-            <StaggerItem key={title}>
-              <div className="group rounded-2xl border bg-card p-6 transition-all hover:border-primary/20 hover:shadow-md">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+          ].map(({ icon: Icon, title, desc }) => (
+            <StaggerItem key={title} className="h-full">
+              <div className="group h-full rounded-2xl border bg-card p-6 transition-all hover:border-primary/20 hover:shadow-md">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                     <Icon className="h-4.5 w-4.5 text-primary" />
                   </div>
-                  <span className="text-xs font-semibold text-muted-foreground/40">
-                    {step}
-                  </span>
+                  <h3 className="text-sm font-semibold">{title}</h3>
                 </div>
-                <h3 className="text-sm font-semibold">{title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                <p className="text-xs leading-relaxed text-muted-foreground">
                   {desc}
                 </p>
               </div>

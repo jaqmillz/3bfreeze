@@ -205,12 +205,12 @@ function NotificationsTab({
     {
       key: "refreeze_reminders" as const,
       label: "Re-freeze reminders",
-      description: "Get reminded to re-freeze after a temporary thaw.",
+      description: "Get reminded to re-freeze after a temporary unfreeze.",
     },
     {
       key: "thaw_expiration_alerts" as const,
-      label: "Thaw expiration alerts",
-      description: "Alert when a scheduled thaw is about to expire.",
+      label: "Unfreeze expiration alerts",
+      description: "Alert when a scheduled unfreeze is about to expire.",
     },
     {
       key: "weekly_summary" as const,

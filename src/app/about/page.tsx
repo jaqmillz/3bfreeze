@@ -47,7 +47,7 @@ export default function AboutPage() {
               We provide a freeze workflow that bypasses the monitoring pitches
               and goes straight to each bureau&apos;s freeze page. One place to
               manage your status across all three bureaus. Reminders when a
-              temporary thaw expires. No subscriptions, no upsells, no dark
+              temporary unfreeze expires. No subscriptions, no upsells, no dark
               patterns. And it&apos;s free by law.
             </p>
           </section>

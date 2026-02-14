@@ -38,7 +38,7 @@ export default function PrivacyPage() {
             </h2>
             <p className="mt-3 leading-7 text-muted-foreground">
               We use the information we collect to operate and maintain your
-              account, send you freeze status notifications and thaw expiration
+              account, send you freeze status notifications and unfreeze expiration
               reminders, respond to your support requests, and improve our
               service. We do not sell, rent, or share your personal information
               with third parties for marketing purposes.
