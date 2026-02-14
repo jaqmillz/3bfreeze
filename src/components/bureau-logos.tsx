@@ -3,7 +3,7 @@
  * Colors match each bureau's brand identity.
  */
 
-export function EquifaxLogo({ className }: { className?: string }) {
+function EquifaxLogo({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 120 28"
@@ -27,7 +27,7 @@ export function EquifaxLogo({ className }: { className?: string }) {
   );
 }
 
-export function TransUnionLogo({ className }: { className?: string }) {
+function TransUnionLogo({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 140 28"
@@ -51,7 +51,7 @@ export function TransUnionLogo({ className }: { className?: string }) {
   );
 }
 
-export function ExperianLogo({ className }: { className?: string }) {
+function ExperianLogo({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 120 28"

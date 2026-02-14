@@ -9,13 +9,8 @@ import {
   ShieldOff,
   ShieldAlert,
   CalendarClock,
-  Snowflake,
   ArrowRight,
   X,
-  Lock,
-  Ban,
-  DatabaseZap,
-  Unlock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -302,7 +297,7 @@ function ScheduleThawModal({
             {frozenBureaus.map((bureau) => (
               <label
                 key={bureau}
-                className="flex items-center gap-3 cursor-pointer rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/50"
+                className="flex items-center gap-3 cursor-pointer rounded-md border px-3 py-2.5 transition-colors hover:bg-muted/50"
               >
                 <Checkbox
                   checked={selectedBureaus.includes(bureau)}
@@ -514,7 +509,7 @@ function BureauCard({
 
   return (
     <div
-      className={`group relative rounded-2xl border ${config.border} ${config.bg} p-5 transition-all hover:shadow-md`}
+      className={`group relative rounded-lg border ${config.border} ${config.bg} p-5 transition-all hover:shadow-md`}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-2">
@@ -546,7 +541,7 @@ function BureauCard({
             return (
               <div
                 key={reminder.id}
-                className="flex items-center justify-between rounded-lg bg-background/60 px-3 py-2 text-xs"
+                className="flex items-center justify-between rounded-md bg-background/60 px-3 py-2 text-xs"
               >
                 <div className="flex items-center gap-2">
                   <CalendarClock className={`h-3.5 w-3.5 ${isActive ? "text-amber-500" : "text-yellow-600 dark:text-yellow-400"}`} />
@@ -635,26 +630,26 @@ export function DashboardClient({
   }
 
   return (
-    <div className="space-y-10 pb-24">
+    <div className="space-y-8 pb-24">
       {/* Status + Actions */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between gap-4">
         <FreezeShield frozenCount={frozenCount} />
-        <div className="flex gap-2.5">
-          <Button asChild className="rounded-xl px-5 gap-2">
-            <Link href="/freeze-workflow">
-              <Snowflake className="h-4 w-4" />
-              Freeze
-            </Link>
-          </Button>
+        <div className="flex flex-col items-end gap-1.5">
+          <Link
+            href="/freeze-workflow"
+            className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+          >
+            Freeze a bureau
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
           {frozenCount > 0 && (
-            <Button
-              variant="outline"
-              className="rounded-xl px-5 gap-2"
+            <button
               onClick={() => setThawModalOpen(true)}
+              className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
-              <CalendarClock className="h-4 w-4" />
-              Schedule Thaw
-            </Button>
+              Schedule thaw
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
           )}
         </div>
       </div>
@@ -681,41 +676,44 @@ export function DashboardClient({
         <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </Link>
 
+      <hr className="border-border" />
+
       {/* What is a credit freeze? */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           About credit freezes
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-3">
           {[
             {
-              icon: Lock,
               title: "What is a credit freeze?",
-              desc: "A credit freeze restricts access to your credit report. Lenders can\u2019t pull your file, which means no one can open new accounts in your name.",
+              desc: "A credit freeze blocks lenders from accessing your credit report, preventing anyone from opening new accounts in your name. It\u2019s the single most effective way to prevent identity theft.",
             },
             {
-              icon: Ban,
-              title: "Stops identity theft",
-              desc: "Even if a thief has your SSN, they can\u2019t use it to open credit cards, loans, or other accounts while your credit is frozen.",
+              title: "It\u2019s free by federal law",
+              desc: "Since 2018, freezing and unfreezing your credit is completely free at all three bureaus, unlimited times. This is a federally protected right.",
             },
             {
-              icon: DatabaseZap,
-              title: "Protection after data breaches",
-              desc: "If your info was exposed in a breach, a freeze is the single most effective step to prevent fraudulent accounts from being opened.",
+              title: "Your credit score is not affected",
+              desc: "A credit freeze has zero impact on your credit score. Your existing accounts, automatic payments, and credit history continue working exactly as before.",
             },
             {
-              icon: Unlock,
-              title: "Easy to lift when you need it",
-              desc: "Need to apply for credit? Temporarily lift your freeze online in minutes, then refreeze when you\u2019re done. Completely free.",
+              title: "1.35 billion breach notices in 2024",
+              desc: "Over 1.35 billion data breach notices were issued in 2024 alone, up 211% from the prior year. If you have a Social Security number, your data has almost certainly been exposed.",
             },
-          ].map(({ icon: Icon, title, desc }) => (
+            {
+              title: "Lift it in minutes, not days",
+              desc: "Need to apply for a loan or credit card? Temporarily lift your freeze online in minutes. By law, bureaus must process your request within one hour.",
+            },
+            {
+              title: "A freeze is not a lock",
+              desc: "Unlike credit locks (which may cost money and lack legal protections), a credit freeze is federally regulated, always free, and cannot be weakened by bureau policy changes.",
+            },
+          ].map(({ title, desc }) => (
             <div
               key={title}
-              className="rounded-xl border bg-card p-4 transition-colors hover:border-primary/20"
+              className="rounded-lg border bg-card p-4 transition-colors hover:border-primary/20"
             >
-              <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <Icon className="h-4 w-4 text-primary" />
-              </div>
               <h3 className="text-sm font-semibold">{title}</h3>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {desc}
@@ -735,7 +733,7 @@ export function DashboardClient({
             {thawReminders.map((reminder) => (
               <div
                 key={reminder.id}
-                className="flex items-center justify-between rounded-xl border p-4"
+                className="flex items-center justify-between rounded-lg border p-4"
               >
                 <div className="flex items-center gap-3">
                   <CalendarClock className="h-4 w-4 text-muted-foreground" />

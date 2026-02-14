@@ -1,0 +1,67 @@
+# 3Bfreeze
+
+> Your simple solution for proactive credit security. Freeze your credit at all three bureaus — Equifax, TransUnion, and Experian — for free.
+
+## What is 3Bfreeze?
+
+3Bfreeze is a free web application that guides users through freezing their credit at all three major U.S. credit bureaus: Equifax, TransUnion, and Experian. It provides step-by-step instructions, tracks freeze status across bureaus, and helps users manage temporary thaws when they need to apply for credit.
+
+## What is a credit freeze?
+
+A credit freeze (also called a security freeze) restricts access to your credit report. When your credit is frozen, lenders cannot pull your credit file, which means no one — including identity thieves — can open new accounts in your name. Credit freezes are free by federal law (Economic Growth, Regulatory Relief, and Consumer Protection Act of 2018).
+
+## How does 3Bfreeze work?
+
+1. **Create an account** — Sign up for free.
+2. **Follow the guided workflow** — 3Bfreeze walks you through freezing your credit at each bureau with clear, step-by-step instructions.
+3. **Track your status** — A dashboard shows which bureaus are frozen, unfrozen, or temporarily thawed.
+4. **Manage thaws** — When you need to apply for credit, log temporary thaw windows so you know exactly when your freeze will be restored.
+5. **Stay protected** — View your freeze history and upcoming thaw schedules in one place.
+
+## Supported bureaus
+
+- **Equifax** — https://www.equifax.com/personal/credit-report-services/credit-freeze/
+- **TransUnion** — https://www.transunion.com/credit-freeze
+- **Experian** — https://www.experian.com/freeze/center.html
+
+## Frequently asked questions
+
+### Why should I freeze my credit?
+A credit freeze is the single most effective step you can take to prevent identity theft and fraudulent accounts from being opened in your name. Even if your personal information (SSN, address, date of birth) has been exposed in a data breach, a freeze prevents thieves from using that information to open new credit accounts.
+
+### Does a credit freeze cost anything?
+No. Credit freezes are free by federal law at all three bureaus. You can freeze and unfreeze as many times as you want at no cost.
+
+### Does freezing my credit affect my credit score?
+No. A credit freeze does not affect your credit score in any way. It only restricts new inquiries from potential lenders.
+
+### Can I still use my existing credit cards?
+Yes. A credit freeze only prevents new accounts from being opened. Your existing credit cards, loans, and bank accounts continue to work normally.
+
+### What if I need to apply for credit?
+You can temporarily lift (thaw) your freeze at any bureau, usually online in minutes. 3Bfreeze helps you track these temporary thaw windows so you remember to refreeze afterward.
+
+### Do I need to freeze at all three bureaus?
+Yes. Lenders may check any of the three bureaus. If even one is unfrozen, a thief could potentially open an account through that bureau. 3Bfreeze guides you through freezing all three.
+
+### How long does a credit freeze last?
+A credit freeze stays in place until you remove it. There is no expiration.
+
+### Is 3Bfreeze affiliated with the credit bureaus?
+No. 3Bfreeze is an independent tool that helps users navigate the freeze process at each bureau's own website. You perform the actual freeze directly with each bureau.
+
+## Why 3Bfreeze matters
+
+Every year, millions of Americans are affected by identity theft and data breaches. Major breaches at companies like Equifax (2017, 147 million records), T-Mobile, Capital One, and many others have exposed the personal data of most American adults. A credit freeze is the strongest defense available, yet most people have not frozen their credit because the process feels confusing and must be repeated at three separate bureaus.
+
+3Bfreeze solves this by providing a single, guided experience that walks users through the entire process and helps them stay on top of their freeze status over time.
+
+## Key facts
+
+- Free to use
+- No subscription required
+- Works with all three U.S. credit bureaus
+- Supports temporary thaw scheduling
+- Tracks freeze history and status
+- Step-by-step guided workflows
+- Credit freezes are a legal right under U.S. federal law

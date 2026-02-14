@@ -17,9 +17,9 @@ export function Footer({ isAuthenticated = false }: { isAuthenticated?: boolean 
   return (
     <footer className="border-t bg-primary/[0.04]">
       <div className="mx-auto max-w-5xl px-6 py-5 sm:py-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 sm:col-span-1">
             <Link href={isAuthenticated ? "/dashboard" : "/"} className="inline-flex items-center gap-2 font-bold text-sm">
               <Shield className="h-4 w-4 text-primary" />
               3Bfreeze

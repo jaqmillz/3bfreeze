@@ -1,0 +1,19 @@
+# 3Bfreeze — robots.txt
+
+User-agent: *
+Allow: /
+Allow: /llms.txt
+
+# Block authenticated app routes
+Disallow: /dashboard
+Disallow: /freeze-workflow
+Disallow: /unfreeze-workflow
+Disallow: /history
+Disallow: /settings
+
+# Block auth flows
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+Sitemap: https://3bfreeze.com/sitemap.xml

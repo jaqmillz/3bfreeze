@@ -34,7 +34,7 @@ export default async function AppLayout({
       <div className="flex flex-1">
         <AppSidebar userName={userName} />
         <div className="flex flex-1 flex-col">
-          <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">{children}</main>
+          <main className="flex-1 mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-6">{children}</main>
           <Footer isAuthenticated />
         </div>
       </div>

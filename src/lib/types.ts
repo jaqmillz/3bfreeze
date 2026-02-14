@@ -70,15 +70,6 @@ export interface FreezeWorkflowProgress {
   completed_at: string | null;
 }
 
-export interface FreezeIssue {
-  id: string;
-  user_id: string;
-  bureau: Bureau;
-  issue_type: IssueType;
-  issue_details: string | null;
-  created_at: string;
-}
-
 export interface ActivityLogEntry {
   id: string;
   user_id: string;
