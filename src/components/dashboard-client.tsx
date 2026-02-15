@@ -643,7 +643,7 @@ export function DashboardClient({
       {/* Status + Actions */}
       <div className="flex items-center justify-between gap-4">
         <FreezeShield frozenCount={frozenCount} />
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
           <Link
             href="/freeze-workflow"
             className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
