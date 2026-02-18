@@ -14,6 +14,7 @@ export default function BreachCodeEntryPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [invalidCode, setInvalidCode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus the input after animations settle
@@ -34,10 +35,12 @@ export default function BreachCodeEntryPage() {
 
     const breach = getBreachByCode(trimmed);
     if (!breach) {
-      // Invalid code — redirect to signup
-      router.push("/signup");
+      setError("No existing code");
+      setInvalidCode(true);
       return;
     }
+
+    setInvalidCode(false);
 
     router.push(`/breach/${breach.code}`);
   }
@@ -87,16 +90,27 @@ export default function BreachCodeEntryPage() {
             onChange={(e) => {
               setCode(e.target.value.toUpperCase());
               setError(null);
+              setInvalidCode(false);
             }}
-            className="text-center text-lg tracking-wider"
+            className={`text-center text-lg tracking-wider ${invalidCode ? "border-destructive focus-visible:ring-destructive" : ""}`}
+            aria-invalid={invalidCode}
           />
           {error && (
             <p className="text-center text-xs text-destructive">{error}</p>
           )}
-          <Button type="submit" className="w-full gap-2">
-            Continue
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          {!invalidCode ? (
+            <Button type="submit" className="w-full gap-2">
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button type="button" asChild className="w-full gap-2">
+              <Link href="/signup">
+                Sign Up Instead
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </form>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
