@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, LockOpen, ShieldAlert } from "lucide-react";
@@ -14,6 +14,13 @@ export default function BreachCodeEntryPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the input after animations settle
+  useEffect(() => {
+    const timer = setTimeout(() => inputRef.current?.focus(), 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,6 +80,7 @@ export default function BreachCodeEntryPage() {
 
         <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
           <Input
+            ref={inputRef}
             type="text"
             placeholder="e.g., ACME2024"
             value={code}
@@ -81,7 +89,6 @@ export default function BreachCodeEntryPage() {
               setError(null);
             }}
             className="text-center text-lg tracking-wider"
-            autoFocus
           />
           {error && (
             <p className="text-center text-xs text-destructive">{error}</p>
