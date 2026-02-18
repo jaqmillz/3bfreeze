@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
   ExternalLink,
@@ -95,6 +95,9 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
     CHECKLIST_ITEMS.map(() => state.checklistCompleted)
   );
 
+  // Ref for scrolling stepper into view on step change
+  const stepperRef = useRef<HTMLDivElement>(null);
+
   // Issue modal state
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [issueModalBureau, setIssueModalBureau] = useState<Bureau>("equifax");
@@ -132,11 +135,18 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
 
   function navigateStep(step: WorkflowStep) {
     setState((prev) => ({ ...prev, currentStep: step }));
+    scrollToStepper();
   }
 
   // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
+
+  function scrollToStepper() {
+    setTimeout(() => {
+      stepperRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
 
   function handleChecklistComplete() {
     setState((prev) => ({
@@ -144,7 +154,8 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
       checklistCompleted: true,
       currentStep: "equifax",
     }));
-    toast.success("Checklist complete! Let's start with Equifax.");
+    toast.success("Checklist complete! Let's start with Equifax.", { duration: 2000 });
+    scrollToStepper();
   }
 
   function markBureauFrozen(bureau: Bureau) {
@@ -157,7 +168,8 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
       currentStep: next,
       completedAt: next === "complete" ? new Date().toISOString() : prev.completedAt,
     }));
-    toast.success(`${BUREAU_INFO[bureau].name} credit freeze confirmed!`);
+    toast.success(`${BUREAU_INFO[bureau].name} credit freeze confirmed!`, { duration: 2000 });
+    scrollToStepper();
   }
 
   function handleIssueSkip() {
@@ -168,11 +180,13 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
       completedAt: next === "complete" ? new Date().toISOString() : prev.completedAt,
     }));
     toast.info(
-      `Skipped ${BUREAU_INFO[issueModalBureau].name}. You can come back later.`
+      `Skipped ${BUREAU_INFO[issueModalBureau].name}. You can come back later.`,
+      { duration: 2000 }
     );
     setIssueModalOpen(false);
     setSelectedIssue(null);
     setIssueDetails("");
+    scrollToStepper();
   }
 
   // ---------------------------------------------------------------------------
@@ -697,7 +711,9 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-24">
       <BreachHero breach={breach} collapsible={currentStep !== "checklist"} />
-      <StepperHeader />
+      <div ref={stepperRef} className="scroll-mt-16">
+        <StepperHeader />
+      </div>
 
       {currentStep === "checklist" && <ChecklistStep />}
       {currentStep === "equifax" && <BureauStep bureau="equifax" />}
