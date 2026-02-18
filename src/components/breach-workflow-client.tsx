@@ -41,6 +41,7 @@ import {
   type AnonymousWorkflowState,
 } from "@/lib/breach-workflow-storage";
 import { BreachSignupPrompt } from "@/components/breach-signup-prompt";
+import { BreachHero } from "@/components/breach-hero";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -695,6 +696,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-24">
+      <BreachHero breach={breach} collapsible={currentStep !== "checklist"} />
       <StepperHeader />
 
       {currentStep === "checklist" && <ChecklistStep />}

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getBreachByCode } from "@/lib/breach-codes";
-import { BreachHero } from "@/components/breach-hero";
 import { BreachWorkflowClient } from "@/components/breach-workflow-client";
 
 interface Props {
@@ -30,7 +29,6 @@ export default async function BreachCodePage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <BreachHero breach={breach} />
       <BreachWorkflowClient breach={breach} />
     </div>
   );
