@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/animate";
 import { getPasswordStrength } from "@/lib/utils";
+import { getBreachByCode } from "@/lib/breach-codes";
+import {
+  loadState,
+  clearState,
+} from "@/lib/breach-workflow-storage";
 
 interface FieldErrors {
   firstName?: string;
@@ -32,7 +37,18 @@ interface FieldErrors {
 }
 
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupContent />
+    </Suspense>
+  );
+}
+
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const breachCode = searchParams.get("breach");
+  const breachInfo = breachCode ? getBreachByCode(breachCode) : null;
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -107,6 +123,54 @@ export default function SignupPage() {
         return;
       }
 
+      // Migrate breach workflow state from localStorage to Supabase
+      if (breachInfo) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const workflowState = loadState();
+            if (workflowState && workflowState.breachCode === breachInfo.code) {
+              // Save workflow progress
+              await supabase.from("freeze_workflow_progress").upsert(
+                {
+                  user_id: user.id,
+                  current_step: workflowState.currentStep,
+                  checklist_completed: workflowState.checklistCompleted,
+                  equifax_completed: workflowState.equifaxCompleted,
+                  transunion_completed: workflowState.transunionCompleted,
+                  experian_completed: workflowState.experianCompleted,
+                  completed_at: workflowState.completedAt,
+                },
+                { onConflict: "user_id" }
+              );
+
+              // Save bureau statuses for completed bureaus
+              const now = new Date().toISOString();
+              const bureaus = ["equifax", "transunion", "experian"] as const;
+              for (const bureau of bureaus) {
+                const key = `${bureau}Completed` as keyof typeof workflowState;
+                if (workflowState[key]) {
+                  await supabase.from("bureau_status").upsert(
+                    {
+                      user_id: user.id,
+                      bureau,
+                      status: "frozen",
+                      status_updated_at: now,
+                      frozen_date: now,
+                    },
+                    { onConflict: "user_id,bureau" }
+                  );
+                }
+              }
+
+              clearState();
+            }
+          }
+        } catch {
+          // Migration failed silently — user still gets account
+        }
+      }
+
       router.push("/dashboard");
     } catch {
       setGeneralError("An unexpected error occurred. Please try again.");
@@ -153,7 +217,11 @@ export default function SignupPage() {
         <Card className="rounded-2xl border-0 shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-bold">Create your account</CardTitle>
-          <CardDescription>Get started with 3Bfreeze for free</CardDescription>
+          <CardDescription>
+            {breachInfo
+              ? `Save your ${breachInfo.name} freeze progress`
+              : "Get started with 3Bfreeze for free"}
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
