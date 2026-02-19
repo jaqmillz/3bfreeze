@@ -1,5 +1,41 @@
 # Changelog
 
+## [v2.0.2] — 2026-02-18
+
+- Strip card containers from homepage "How it works" and "Freeze vs Monitor" sections for seamless page integration
+- Switch freeze-vs-monitor layout from grid to centered flex for proper alignment
+- Update freeze-vs-monitor subtitle with specific credit-file-pulled phrasing
+- Add "Also protect yourself" section to dashboard (credit reports, fraud alerts, monitoring links)
+- Collapsible breach hero: collapses to compact bar during workflow, expandable via chevron
+- Auto-scroll stepper to top on step change, shorten toast duration to 2s
+- Add pre-push hook enforcing changelog entries before tag pushes
+
+## [v2.0.1] — 2026-02-17
+
+- Show inline error and "Sign Up Instead" button for invalid breach codes
+- Focus breach code input after animation settles
+
+## [v2.0] — 2026-02-17
+
+- Breach landing page with breach code entry flow
+- Anonymous freeze workflow (no account required)
+- Navy blue color palette
+- Fix mobile alignment for action links next to shield icon
+
+## [v1.2.1] — 2026-02-15
+
+- Remove Apple OAuth, keep Google-only sign-in
+
+## [v1.2] — 2026-02-14
+
+- Rename "thaw" to "unfreeze" throughout the app
+- First-login redirect to freeze workflow
+- UX polish
+
+## [v1.1.1] — 2026-02-13
+
+- Homepage polish: thinner header, hero line break, cleanup
+
 ## v1.1 — 2026-02-13
 
 ### Features
