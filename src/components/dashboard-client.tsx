@@ -687,6 +687,47 @@ export function DashboardClient({
 
       <hr className="border-border" />
 
+      {/* Also protect yourself */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          Also protect yourself
+        </h2>
+        <div className="space-y-3">
+          <a
+            href="https://www.annualcreditreport.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-lg border bg-card p-4 transition-colors hover:border-primary/20"
+          >
+            <h3 className="text-sm font-semibold">Get your free credit report</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              You&apos;re entitled to a free report from each bureau every year at annualcreditreport.com. Review them for accounts you don&apos;t recognize.
+            </p>
+          </a>
+
+          <div className="rounded-lg border bg-card p-4 transition-colors hover:border-primary/20">
+            <h3 className="text-sm font-semibold">Place fraud alerts</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              A fraud alert tells creditors to verify your identity before opening new accounts. Free for one year, and you only need to place it at one bureau &mdash; they notify the other two.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              <a href="https://www.equifax.com/personal/credit-report-services/credit-fraud-alerts/" target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-primary hover:underline">Equifax</a>
+              <a href="https://www.experian.com/fraud/center.html" target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-primary hover:underline">Experian</a>
+              <a href="https://www.transunion.com/fraud-alerts" target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-primary hover:underline">TransUnion</a>
+            </div>
+          </div>
+
+          <div className="rounded-lg border bg-card p-4 transition-colors hover:border-primary/20">
+            <h3 className="text-sm font-semibold">Enroll in free monitoring</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Most breach notification letters include a free credit monitoring activation code. Check your letter for enrollment instructions and deadlines.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-border" />
+
       {/* What is a credit freeze? */}
       <div className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">

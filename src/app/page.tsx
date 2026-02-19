@@ -87,33 +87,34 @@ export default function Home() {
           </p>
         </FadeUp>
 
-        <StaggerChildren className="mx-auto mt-12 grid max-w-3xl gap-6 sm:grid-cols-3">
+        <StaggerChildren className="mx-auto mt-12 grid max-w-3xl gap-8 sm:grid-cols-3">
           {[
             {
+              step: "1",
               icon: Shield,
               title: "Create your account",
               desc: "Sign up in seconds. No credit card needed — freezing your credit is free by law.",
             },
             {
+              step: "2",
               icon: Snowflake,
               title: "Freeze your credit bureaus",
               desc: "A credit freeze locks your credit files so no one can open accounts in your name. We walk you through freezing all three bureaus.",
             },
             {
+              step: "3",
               icon: Bell,
               title: "Grant or revoke access anytime",
               desc: "Need to apply for a loan or credit card? Temporarily lift your freeze, then re-freeze when you're done.",
             },
-          ].map(({ icon: Icon, title, desc }) => (
-            <StaggerItem key={title} className="h-full">
-              <div className="group h-full rounded-2xl border bg-card p-6 transition-all hover:border-primary/20 hover:shadow-md">
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <Icon className="h-4.5 w-4.5 text-primary" />
-                  </div>
-                  <h3 className="text-sm font-semibold">{title}</h3>
+          ].map(({ step, icon: Icon, title, desc }) => (
+            <StaggerItem key={title}>
+              <div className="text-center">
+                <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <span className="text-sm font-bold text-primary">{step}</span>
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground">
+                <h3 className="text-sm font-semibold">{title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                   {desc}
                 </p>
               </div>
@@ -134,19 +135,17 @@ export default function Home() {
               Prevention beats detection
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-sm text-muted-foreground">
-              Monitoring tells you after the damage. A freeze stops it from happening.
+              Monitoring tells you after your credit file was pulled. A freeze prevents it from being pulled.
             </p>
           </FadeUp>
 
-          <div className="mx-auto mt-12 grid max-w-2xl gap-6 sm:grid-cols-2">
-            {/* Monitoring card */}
+          <div className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-10 sm:flex-row sm:justify-center sm:gap-16">
+            {/* Monitoring */}
             <FadeUp delay={0.1}>
-              <div className="rounded-2xl border border-destructive/10 bg-card p-6">
-                <div className="mb-5 flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive/10">
-                    <ShieldOff className="h-4 w-4 text-destructive" />
-                  </div>
-                  <h3 className="text-sm font-semibold">Monitoring</h3>
+              <div>
+                <div className="mb-4 flex items-center gap-2.5">
+                  <ShieldOff className="h-4 w-4 text-destructive/60" />
+                  <h3 className="text-sm font-semibold text-muted-foreground">Monitoring</h3>
                 </div>
                 <ul className="space-y-3">
                   {[
@@ -156,9 +155,7 @@ export default function Home() {
                     "You still dispute the fraud yourself",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5">
-                      <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-                        <X className="h-2.5 w-2.5 text-destructive" />
-                      </div>
+                      <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive/40" />
                       <span className="text-sm text-muted-foreground">{item}</span>
                     </li>
                   ))}
@@ -166,19 +163,15 @@ export default function Home() {
               </div>
             </FadeUp>
 
-            {/* Freeze card */}
+            {/* Freeze */}
             <FadeUp delay={0.2}>
-              <div className="rounded-2xl border border-primary/20 bg-card p-6 shadow-sm ring-1 ring-primary/5">
-                <div className="mb-5 flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold">Freeze</h3>
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                      Recommended
-                    </span>
-                  </div>
+              <div>
+                <div className="mb-4 flex items-center gap-2.5">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold">Freeze</h3>
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    Recommended
+                  </span>
                 </div>
                 <ul className="space-y-3">
                   {[
@@ -188,9 +181,7 @@ export default function Home() {
                     "Lift or refreeze anytime you need",
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5">
-                      <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Check className="h-2.5 w-2.5 text-primary" />
-                      </div>
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                       <span className="text-sm text-foreground">{item}</span>
                     </li>
                   ))}
