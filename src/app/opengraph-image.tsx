@@ -11,7 +11,7 @@ export default async function Image() {
     (
       <div
         style={{
-          background: "linear-gradient(135deg, #17153B 0%, #2E236C 50%, #433D8B 100%)",
+          background: "linear-gradient(135deg, #0f1729 0%, #1e3a5f 50%, #2a5080 100%)",
           width: "100%",
           height: "100%",
           display: "flex",
@@ -34,7 +34,7 @@ export default async function Image() {
             height="80"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#C8ACD6"
+            stroke="#93c5fd"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -67,7 +67,7 @@ export default async function Image() {
         <div
           style={{
             fontSize: 28,
-            color: "#C8ACD6",
+            color: "#93c5fd",
             textAlign: "center",
             maxWidth: 700,
             lineHeight: 1.4,
