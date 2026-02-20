@@ -17,6 +17,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 interface BreachAnalyticsRow {
   code: string;
@@ -35,7 +50,23 @@ interface Props {
   breachAnalytics: BreachAnalyticsRow[];
   sourceBreakdown: Record<string, number>;
   breachVisits: { breach_code: string; source: string; created_at: string }[];
+  signupTrend: { date: string; signups: number }[];
+  visitTrend: { date: string; visits: number }[];
 }
+
+const CHART_COLORS = [
+  "oklch(0.445 0.059 241.9)", // primary
+  "oklch(0.849 0.083 240.9)", // accent
+  "oklch(0.6 0.15 250)",
+  "oklch(0.7 0.12 200)",
+  "oklch(0.55 0.1 280)",
+];
+
+const BUREAU_COLORS: Record<string, string> = {
+  equifax: "oklch(0.445 0.059 241.9)",
+  transunion: "oklch(0.6 0.15 250)",
+  experian: "oklch(0.849 0.083 240.9)",
+};
 
 function StatCard({
   label,
@@ -60,6 +91,33 @@ function StatCard({
   );
 }
 
+function formatShortDate(dateString: string) {
+  const d = new Date(dateString + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function ChartTooltipContent({
+  active,
+  payload,
+  label,
+  valueLabel,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+  valueLabel: string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-lg border bg-card px-3 py-2 shadow-md">
+      <p className="text-xs font-medium">{label}</p>
+      <p className="text-sm font-bold">
+        {payload[0].value} {valueLabel}
+      </p>
+    </div>
+  );
+}
+
 export function AdminDashboardClient({
   totalUsers,
   totalFrozen,
@@ -68,6 +126,8 @@ export function AdminDashboardClient({
   breachAnalytics,
   sourceBreakdown,
   breachVisits,
+  signupTrend,
+  visitTrend,
 }: Props) {
   const [dateRange, setDateRange] = useState<string>("all");
 
@@ -80,7 +140,6 @@ export function AdminDashboardClient({
 
   const filteredAnalytics = useMemo(() => {
     if (dateRange === "all") return breachAnalytics;
-    // Recompute visits for filtered range
     const visitCounts: Record<string, number> = {};
     for (const v of filteredVisits) {
       visitCounts[v.breach_code] = (visitCounts[v.breach_code] ?? 0) + 1;
@@ -94,6 +153,30 @@ export function AdminDashboardClient({
           : 0,
     }));
   }, [breachAnalytics, filteredVisits, dateRange]);
+
+  // Bureau donut data
+  const bureauDonutData = (["equifax", "transunion", "experian"] as const).map(
+    (bureau) => ({
+      name: bureau.charAt(0).toUpperCase() + bureau.slice(1),
+      value: frozenByBureau[bureau],
+      color: BUREAU_COLORS[bureau],
+    })
+  );
+
+  // Source bar data
+  const sourceBarData = Object.entries(sourceBreakdown)
+    .sort(([, a], [, b]) => b - a)
+    .map(([source, count]) => ({
+      name: source === "unknown" ? "Direct" : source,
+      value: count,
+    }));
+
+  // Breach visits bar chart data
+  const breachBarData = filteredAnalytics.map((row) => ({
+    name: row.code,
+    visits: row.visits,
+    signups: row.signups,
+  }));
 
   function exportCSV() {
     const headers = ["Code", "Name", "Visits", "Signups", "Conversion %", "Active"];
@@ -148,42 +231,251 @@ export function AdminDashboardClient({
         />
       </div>
 
-      {/* Bureau breakdown */}
-      <div>
-        <h2 className="text-sm font-semibold mb-3">Bureau Breakdown</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {(["equifax", "transunion", "experian"] as const).map((bureau) => (
-            <div key={bureau} className="rounded-lg border p-4">
-              <p className="text-xs font-medium text-muted-foreground capitalize">
-                {bureau}
-              </p>
-              <p className="mt-1 text-xl font-bold">
-                {frozenByBureau[bureau]}
-              </p>
-              <p className="text-xs text-muted-foreground">frozen</p>
+      {/* Charts row: Signup Trend + Bureau Breakdown */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Signup trend area chart */}
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Signup Trend</h2>
+          {signupTrend.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={signupTrend}>
+                <defs>
+                  <linearGradient id="signupGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="oklch(0.445 0.059 241.9)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="oklch(0.445 0.059 241.9)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.02 241)" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatShortDate}
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => (
+                    <ChartTooltipContent
+                      active={active}
+                      payload={payload as { value: number }[]}
+                      label={label ? formatShortDate(label as string) : ""}
+                      valueLabel="signups"
+                    />
+                  )}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="signups"
+                  stroke="oklch(0.445 0.059 241.9)"
+                  strokeWidth={2}
+                  fill="url(#signupGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[220px] items-center justify-center">
+              <p className="text-xs text-muted-foreground">No signup data yet</p>
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Bureau freeze donut */}
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Bureau Breakdown</h2>
+          {totalFrozen > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={bureauDonutData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={85}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {bureauDonutData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const item = payload[0];
+                    return (
+                      <div className="rounded-lg border bg-card px-3 py-2 shadow-md">
+                        <p className="text-xs font-medium">{item.name}</p>
+                        <p className="text-sm font-bold">{item.value} frozen</p>
+                      </div>
+                    );
+                  }}
+                />
+                <Legend
+                  formatter={(value: string) => (
+                    <span className="text-xs text-muted-foreground">{value}</span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[220px] items-center justify-center">
+              <p className="text-xs text-muted-foreground">No freeze data yet</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Signup sources */}
-      <div>
-        <h2 className="text-sm font-semibold mb-3">Signup Sources</h2>
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(sourceBreakdown)
-            .sort(([, a], [, b]) => b - a)
-            .map(([source, count]) => (
-              <div key={source} className="rounded-lg border px-4 py-3">
-                <p className="text-xs font-medium text-muted-foreground">
-                  {source === "unknown" ? "No attribution" : source}
-                </p>
-                <p className="mt-1 text-lg font-bold">{count}</p>
-              </div>
-            ))}
+      {/* Charts row: Visit Trend + Signup Sources */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Visit trend area chart */}
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Breach Page Visits</h2>
+          {visitTrend.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={visitTrend}>
+                <defs>
+                  <linearGradient id="visitGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="oklch(0.849 0.083 240.9)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="oklch(0.849 0.083 240.9)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.02 241)" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatShortDate}
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => (
+                    <ChartTooltipContent
+                      active={active}
+                      payload={payload as { value: number }[]}
+                      label={label ? formatShortDate(label as string) : ""}
+                      valueLabel="visits"
+                    />
+                  )}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="visits"
+                  stroke="oklch(0.849 0.083 240.9)"
+                  strokeWidth={2}
+                  fill="url(#visitGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[220px] items-center justify-center">
+              <p className="text-xs text-muted-foreground">No visit data yet</p>
+            </div>
+          )}
+        </div>
+
+        {/* Signup sources bar chart */}
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Signup Sources</h2>
+          {sourceBarData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={sourceBarData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.02 241)" horizontal={false} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={80}
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => (
+                    <ChartTooltipContent
+                      active={active}
+                      payload={payload as { value: number }[]}
+                      label={label as string}
+                      valueLabel="signups"
+                    />
+                  )}
+                />
+                <Bar dataKey="value" fill="oklch(0.445 0.059 241.9)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[220px] items-center justify-center">
+              <p className="text-xs text-muted-foreground">No signup data yet</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Breach analytics */}
+      {/* Breach performance bar chart */}
+      {breachBarData.length > 0 && (
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Breach Code Performance</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={breachBarData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.02 241)" />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "oklch(0.5 0.03 242)" }}
+                axisLine={false}
+                tickLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload?.length) return null;
+                  return (
+                    <div className="rounded-lg border bg-card px-3 py-2 shadow-md">
+                      <p className="text-xs font-medium mb-1">{label}</p>
+                      {payload.map((entry, i) => (
+                        <p key={i} className="text-xs">
+                          <span className="font-medium capitalize">{entry.name}:</span>{" "}
+                          {entry.value}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                }}
+              />
+              <Legend
+                formatter={(value: string) => (
+                  <span className="text-xs text-muted-foreground capitalize">{value}</span>
+                )}
+              />
+              <Bar dataKey="visits" fill="oklch(0.445 0.059 241.9)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="signups" fill="oklch(0.849 0.083 240.9)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Breach analytics table */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold">Breach Analytics</h2>
@@ -248,7 +540,6 @@ export function AdminDashboardClient({
           </table>
         </div>
       </div>
-
     </div>
   );
 }

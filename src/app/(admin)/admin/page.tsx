@@ -11,6 +11,7 @@ export default async function AdminDashboardPage() {
     { data: signupSources },
     { count: weeklySignups },
     { data: breachCodes },
+    { data: userSignups },
   ] = await Promise.all([
     // Total users
     supabase.from("users").select("*", { count: "exact", head: true }),
@@ -41,6 +42,12 @@ export default async function AdminDashboardPage() {
     supabase
       .from("breach_codes")
       .select("code, name, active")
+      .order("created_at", { ascending: true }),
+
+    // User signup dates for trend chart
+    supabase
+      .from("users")
+      .select("created_at")
       .order("created_at", { ascending: true }),
   ]);
 
@@ -77,6 +84,41 @@ export default async function AdminDashboardPage() {
     sourceBreakdown[src] = (sourceBreakdown[src] ?? 0) + 1;
   }
 
+  // Signup trend: group by day
+  const signupTrend: { date: string; signups: number }[] = [];
+  const dayMap = new Map<string, number>();
+  for (const u of userSignups ?? []) {
+    const day = new Date(u.created_at).toISOString().split("T")[0];
+    dayMap.set(day, (dayMap.get(day) ?? 0) + 1);
+  }
+  // Fill in missing days for a continuous chart
+  if (dayMap.size > 0) {
+    const sortedDays = [...dayMap.keys()].sort();
+    const start = new Date(sortedDays[0]);
+    const end = new Date(sortedDays[sortedDays.length - 1]);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().split("T")[0];
+      signupTrend.push({ date: key, signups: dayMap.get(key) ?? 0 });
+    }
+  }
+
+  // Visit trend: group by day
+  const visitTrend: { date: string; visits: number }[] = [];
+  const visitDayMap = new Map<string, number>();
+  for (const v of breachVisits ?? []) {
+    const day = new Date(v.created_at).toISOString().split("T")[0];
+    visitDayMap.set(day, (visitDayMap.get(day) ?? 0) + 1);
+  }
+  if (visitDayMap.size > 0) {
+    const sortedDays = [...visitDayMap.keys()].sort();
+    const start = new Date(sortedDays[0]);
+    const end = new Date(sortedDays[sortedDays.length - 1]);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = d.toISOString().split("T")[0];
+      visitTrend.push({ date: key, visits: visitDayMap.get(key) ?? 0 });
+    }
+  }
+
   return (
     <AdminDashboardClient
       totalUsers={totalUsers ?? 0}
@@ -90,6 +132,8 @@ export default async function AdminDashboardPage() {
       }))}
       sourceBreakdown={sourceBreakdown}
       breachVisits={(breachVisits ?? []) as { breach_code: string; source: string; created_at: string }[]}
+      signupTrend={signupTrend}
+      visitTrend={visitTrend}
     />
   );
 }
