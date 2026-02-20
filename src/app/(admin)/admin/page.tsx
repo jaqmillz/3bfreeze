@@ -12,6 +12,8 @@ export default async function AdminDashboardPage() {
     { count: weeklySignups },
     { data: breachCodes },
     { data: userSignups },
+    { data: breachUsers },
+    { data: allBureauStatuses },
   ] = await Promise.all([
     // Total users
     supabase.from("users").select("*", { count: "exact", head: true }),
@@ -49,6 +51,17 @@ export default async function AdminDashboardPage() {
       .from("users")
       .select("created_at")
       .order("created_at", { ascending: true }),
+
+    // Users who signed up via breach code (for funnel)
+    supabase
+      .from("users")
+      .select("id, signup_breach_code")
+      .not("signup_breach_code", "is", null),
+
+    // All bureau statuses (for funnel progress)
+    supabase
+      .from("bureau_status")
+      .select("user_id, bureau, status"),
   ]);
 
   // Compute bureau breakdown
@@ -60,21 +73,46 @@ export default async function AdminDashboardPage() {
   }
   const totalFrozen = Object.values(frozenByBureau).reduce((a, b) => a + b, 0);
 
-  // Compute breach analytics
-  const breachAnalytics: Record<string, { visits: number; signups: number; name: string; active: boolean }> = {};
+  // Build per-user frozen count map
+  const userFrozenCount = new Map<string, number>();
+  for (const bs of allBureauStatuses ?? []) {
+    if (bs.status === "frozen") {
+      userFrozenCount.set(bs.user_id, (userFrozenCount.get(bs.user_id) ?? 0) + 1);
+    }
+  }
+
+  // Compute breach funnel: visits → signups → froze 1+ → froze all 3
+  const breachFunnel: Record<string, {
+    visits: number;
+    signups: number;
+    froze1: number;
+    froze2: number;
+    frozeAll: number;
+    name: string;
+    active: boolean;
+  }> = {};
+
   for (const bc of breachCodes ?? []) {
-    breachAnalytics[bc.code] = { visits: 0, signups: 0, name: bc.name, active: bc.active };
+    breachFunnel[bc.code] = { visits: 0, signups: 0, froze1: 0, froze2: 0, frozeAll: 0, name: bc.name, active: bc.active };
   }
+
+  // Count visits
   for (const visit of breachVisits ?? []) {
-    if (!breachAnalytics[visit.breach_code]) {
-      breachAnalytics[visit.breach_code] = { visits: 0, signups: 0, name: visit.breach_code, active: false };
+    if (!breachFunnel[visit.breach_code]) {
+      breachFunnel[visit.breach_code] = { visits: 0, signups: 0, froze1: 0, froze2: 0, frozeAll: 0, name: visit.breach_code, active: false };
     }
-    breachAnalytics[visit.breach_code].visits++;
+    breachFunnel[visit.breach_code].visits++;
   }
-  for (const user of signupSources ?? []) {
-    if (user.signup_breach_code && breachAnalytics[user.signup_breach_code]) {
-      breachAnalytics[user.signup_breach_code].signups++;
-    }
+
+  // Count signups and freeze progress
+  for (const user of breachUsers ?? []) {
+    const code = user.signup_breach_code;
+    if (!code || !breachFunnel[code]) continue;
+    breachFunnel[code].signups++;
+    const frozen = userFrozenCount.get(user.id) ?? 0;
+    if (frozen >= 1) breachFunnel[code].froze1++;
+    if (frozen >= 2) breachFunnel[code].froze2++;
+    if (frozen >= 3) breachFunnel[code].frozeAll++;
   }
 
   // Signup source breakdown
@@ -91,7 +129,6 @@ export default async function AdminDashboardPage() {
     const day = new Date(u.created_at).toISOString().split("T")[0];
     dayMap.set(day, (dayMap.get(day) ?? 0) + 1);
   }
-  // Fill in missing days for a continuous chart
   if (dayMap.size > 0) {
     const sortedDays = [...dayMap.keys()].sort();
     const start = new Date(sortedDays[0]);
@@ -125,10 +162,9 @@ export default async function AdminDashboardPage() {
       totalFrozen={totalFrozen}
       frozenByBureau={frozenByBureau}
       weeklySignups={weeklySignups ?? 0}
-      breachAnalytics={Object.entries(breachAnalytics).map(([code, data]) => ({
+      breachFunnel={Object.entries(breachFunnel).map(([code, data]) => ({
         code,
         ...data,
-        conversion: data.visits > 0 ? (data.signups / data.visits) * 100 : 0,
       }))}
       sourceBreakdown={sourceBreakdown}
       breachVisits={(breachVisits ?? []) as { breach_code: string; source: string; created_at: string }[]}
