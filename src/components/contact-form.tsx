@@ -34,6 +34,11 @@ export function ContactForm() {
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
     setStatus("loading");
 
     try {

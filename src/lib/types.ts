@@ -33,6 +33,8 @@ export interface UserProfile {
   email: string;
   first_name: string | null;
   last_name: string | null;
+  signup_breach_code: string | null;
+  signup_source: string | null;
   created_at: string;
   updated_at: string;
 }

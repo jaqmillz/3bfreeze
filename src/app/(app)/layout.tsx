@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppNav, AppSidebar } from "@/components/app-nav";
 import { Footer } from "@/components/footer";
+import { WorkflowMigrator } from "@/components/workflow-migrator";
 
 export default async function AppLayout({
   children,
@@ -21,7 +22,7 @@ export default async function AppLayout({
     .from("users")
     .select("first_name, last_name")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   const userName =
     profile?.first_name && profile?.last_name
@@ -30,6 +31,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <WorkflowMigrator userId={user.id} />
       <AppNav userName={userName} />
       <div className="flex flex-1">
         <AppSidebar userName={userName} />

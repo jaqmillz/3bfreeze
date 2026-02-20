@@ -39,7 +39,10 @@ export function AppNav({ userName }: { userName?: string }) {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Sign out failed:", error);
+    }
     router.push("/login");
   }
 
@@ -133,7 +136,10 @@ export function AppSidebar({ userName }: { userName?: string }) {
 
   async function handleSignOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Sign out failed:", error);
+    }
     router.push("/login");
   }
 

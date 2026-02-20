@@ -1,10 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Shield,
   Lock,
-  Snowflake,
-  Bell,
   Check,
   X,
   ShieldCheck,
@@ -13,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MarketingNav } from "@/components/marketing-nav";
 import { Footer } from "@/components/footer";
+import { BreachCodeEntry } from "@/components/breach-code-entry";
 import { FadeUp, StaggerChildren, StaggerItem } from "@/components/animate";
 import { HeroGradient, GradientOrbs, GridPattern } from "@/components/gradient-bg";
 
@@ -39,9 +37,9 @@ export default function Home() {
         </FadeUp>
         <FadeUp delay={0.3} className="relative z-10">
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup">
+            <Link href="/freeze">
               <Button size="lg" className="w-full gap-2 px-8 sm:w-auto">
-                Get started free
+                Freeze for Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -59,8 +57,15 @@ export default function Home() {
         </FadeUp>
       </section>
 
+      {/* Breach Code Entry */}
+      <section className="border-y bg-muted/20 px-6 py-10 sm:py-12">
+        <FadeUp>
+          <BreachCodeEntry />
+        </FadeUp>
+      </section>
+
       {/* Bureau strip */}
-      <section className="border-y bg-muted/30 px-6 py-5">
+      <section className="border-b bg-muted/30 px-6 py-5">
         <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2">
           {["Equifax", "TransUnion", "Experian"].map((name) => (
             <span
@@ -91,23 +96,20 @@ export default function Home() {
           {[
             {
               step: "1",
-              icon: Shield,
-              title: "Create your account",
-              desc: "Sign up in seconds. No credit card needed — freezing your credit is free by law.",
+              title: "Gather your info",
+              desc: "Have your SSN, date of birth, and address ready. No credit card needed — freezing your credit is free by law.",
             },
             {
               step: "2",
-              icon: Snowflake,
               title: "Freeze your credit bureaus",
               desc: "A credit freeze locks your credit files so no one can open accounts in your name. We walk you through freezing all three bureaus.",
             },
             {
               step: "3",
-              icon: Bell,
               title: "Grant or revoke access anytime",
               desc: "Need to apply for a loan or credit card? Temporarily lift your freeze, then re-freeze when you're done.",
             },
-          ].map(({ step, icon: Icon, title, desc }) => (
+          ].map(({ step, title, desc }) => (
             <StaggerItem key={title}>
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -244,9 +246,9 @@ export default function Home() {
               Free. No credit card. About 15 minutes for all three bureaus.
             </p>
             <div className="mt-6">
-              <Link href="/signup">
+              <Link href="/freeze">
                 <Button size="lg" className="gap-2 px-8">
-                  Get started free
+                  Freeze for Free
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>

@@ -50,7 +50,10 @@ export async function updateSession(request: NextRequest) {
     (path) =>
       request.nextUrl.pathname === path ||
       request.nextUrl.pathname.startsWith("/auth/") ||
-      request.nextUrl.pathname.startsWith("/breach")
+      request.nextUrl.pathname.startsWith("/breach") ||
+      request.nextUrl.pathname.startsWith("/api/") ||
+      request.nextUrl.pathname.startsWith("/icon-") ||
+      request.nextUrl.pathname === "/freeze"
   );
 
   // Redirect unauthenticated users to login
