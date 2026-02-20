@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.2.1] — 2026-02-20
+
+- Remove unused imports (XCircle, Loader2) from workflow components
+- Delete unused Next.js template SVGs from public/ (vercel.svg, globe.svg, next.svg, file.svg, window.svg)
+- Remove stale binary docs (moved to Google Drive)
+- Add technical specs and version history documentation
+- Add docs/*.pdf and docs/*.pptx to .gitignore
+
 ## [v2.2.0] — 2026-02-20
 
 ### Features

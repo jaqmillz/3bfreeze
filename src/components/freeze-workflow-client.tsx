@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   ExternalLink,
   ShieldCheck,
-  XCircle,
   Loader2,
   Info,
 } from "lucide-react";

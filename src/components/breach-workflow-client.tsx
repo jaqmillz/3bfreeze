@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   ExternalLink,
   ShieldCheck,
-  Loader2,
   Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
