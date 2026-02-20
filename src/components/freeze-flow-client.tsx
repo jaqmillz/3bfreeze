@@ -39,6 +39,7 @@ import {
   getBureauCompletedKey,
   type FreezeFlowState,
 } from "@/lib/freeze-flow-storage";
+import { getSessionId } from "@/lib/session-id";
 import { FreezeSignupPrompt } from "@/components/freeze-signup-prompt";
 
 // ---------------------------------------------------------------------------
@@ -168,6 +169,17 @@ export function FreezeFlowClient() {
     }));
     toast.success(`${BUREAU_INFO[bureau].name} credit freeze confirmed!`, { duration: 2000 });
     scrollToStepper();
+
+    // Track anonymous freeze event server-side (fire-and-forget)
+    fetch("/api/breach-freeze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        breach_code: null,
+        bureau,
+        session_id: getSessionId(),
+      }),
+    }).catch(() => {});
   }
 
   function handleIssueSkip() {

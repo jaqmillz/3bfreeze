@@ -40,6 +40,7 @@ import {
   getBureauCompletedKey,
   type AnonymousWorkflowState,
 } from "@/lib/breach-workflow-storage";
+import { getSessionId } from "@/lib/session-id";
 import { BreachSignupPrompt } from "@/components/breach-signup-prompt";
 import { BreachHero } from "@/components/breach-hero";
 
@@ -170,6 +171,17 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
     }));
     toast.success(`${BUREAU_INFO[bureau].name} credit freeze confirmed!`, { duration: 2000 });
     scrollToStepper();
+
+    // Track anonymous freeze event server-side (fire-and-forget)
+    fetch("/api/breach-freeze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        breach_code: breach.code,
+        bureau,
+        session_id: getSessionId(),
+      }),
+    }).catch(() => {});
   }
 
   function handleIssueSkip() {

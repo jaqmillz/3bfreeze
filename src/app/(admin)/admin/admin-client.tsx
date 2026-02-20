@@ -61,6 +61,13 @@ interface BreachFunnelRow {
   active: boolean;
 }
 
+interface FreezeStats {
+  signups: number;
+  froze1: number;
+  froze2: number;
+  frozeAll: number;
+}
+
 interface Props {
   totalUsers: number;
   totalFrozen: number;
@@ -71,6 +78,8 @@ interface Props {
   breachVisits: { breach_code: string; source: string; created_at: string }[];
   signupTrend: { date: string; signups: number }[];
   visitTrend: { date: string; visits: number }[];
+  overallStats: FreezeStats;
+  directStats: FreezeStats;
 }
 
 // -- Helpers --
@@ -148,6 +157,8 @@ export function AdminDashboardClient({
   breachVisits,
   signupTrend,
   visitTrend,
+  overallStats,
+  directStats,
 }: Props) {
   const [dateRange, setDateRange] = useState("all");
   const [trendRange, setTrendRange] = useState("14d");
@@ -225,10 +236,10 @@ export function AdminDashboardClient({
     }));
 
   function exportCSV() {
-    const headers = ["Code", "Name", "Visits", "Signups", "Froze 1+", "All 3 Frozen", "Completion %", "Active"];
+    const headers = ["Code", "Name", "Visits", "Froze 1+", "All 3 Frozen", "Signups", "Conversion %", "Active"];
     const rows = filteredFunnel.map((r) => [
-      r.code, r.name, r.visits, r.signups, r.froze1, r.frozeAll,
-      r.signups > 0 ? ((r.frozeAll / r.signups) * 100).toFixed(1) : "0",
+      r.code, r.name, r.visits, r.froze1, r.frozeAll, r.signups,
+      r.visits > 0 ? ((r.signups / r.visits) * 100).toFixed(1) : "0",
       r.active ? "Yes" : "No",
     ]);
     const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
@@ -267,36 +278,6 @@ export function AdminDashboardClient({
             {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
           </div>
         ))}
-      </div>
-
-      {/* Funnel + Bureau donut */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border bg-card p-4">
-          <h2 className="text-sm font-semibold mb-4">Conversion Funnel</h2>
-          <div className="space-y-3">
-            <ProgressBar label="Page Visits" value={funnelTotals.visits} max={funnelTotals.visits} color="oklch(0.445 0.059 241.9)" />
-            <ProgressBar label="Signed Up" value={funnelTotals.signups} max={funnelTotals.visits} color="oklch(0.55 0.07 241)" />
-            <ProgressBar label="Froze 1+" value={funnelTotals.froze1} max={funnelTotals.visits} color="oklch(0.7 0.09 240)" />
-            <ProgressBar label="All 3 Frozen" value={funnelTotals.frozeAll} max={funnelTotals.visits} color="oklch(0.849 0.083 240.9)" />
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-4">
-          <h2 className="text-sm font-semibold mb-4">Bureau Breakdown</h2>
-          {totalFrozen > 0 ? (
-            <ChartContainer config={bureauChartConfig} className="mx-auto aspect-square max-h-[200px]">
-              <PieChart>
-                <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                <Pie data={bureauDonutData} dataKey="value" nameKey="name" innerRadius={50} />
-                <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-              </PieChart>
-            </ChartContainer>
-          ) : (
-            <div className="flex h-[200px] items-center justify-center">
-              <p className="text-xs text-muted-foreground">No freeze data yet</p>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Trends */}
@@ -375,21 +356,69 @@ export function AdminDashboardClient({
         </div>
       </div>
 
-      {/* Signup sources */}
-      {sourceBarData.length > 0 && (
+      {/* Bureau breakdown + Signup sources */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-lg border bg-card p-4">
-          <h2 className="text-sm font-semibold mb-4">Signup Sources</h2>
-          <ChartContainer config={sourceChartConfig} className="w-full" style={{ height: Math.max(100, sourceBarData.length * 40) }}>
-            <BarChart data={sourceBarData} layout="vertical" accessibilityLayer>
-              <CartesianGrid horizontal={false} />
-              <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
-              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} width={80} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="value" fill="var(--color-value)" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ChartContainer>
+          <h2 className="text-sm font-semibold mb-4">Bureau Breakdown</h2>
+          {totalFrozen > 0 ? (
+            <ChartContainer config={bureauChartConfig} className="mx-auto aspect-square max-h-[200px]">
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
+                <Pie data={bureauDonutData} dataKey="value" nameKey="name" innerRadius={50} />
+                <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+              </PieChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center">
+              <p className="text-xs text-muted-foreground">No freeze data yet</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {sourceBarData.length > 0 && (
+          <div className="rounded-lg border bg-card p-4">
+            <h2 className="text-sm font-semibold mb-4">Signup Sources</h2>
+            <ChartContainer config={sourceChartConfig} className="w-full" style={{ height: Math.max(100, sourceBarData.length * 40) }}>
+              <BarChart data={sourceBarData} layout="vertical" accessibilityLayer>
+                <CartesianGrid horizontal={false} />
+                <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} width={80} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ChartContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Funnels: breach + overall */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">Breach Funnel</h2>
+          <div className="space-y-3">
+            <ProgressBar label="Page Visits" value={funnelTotals.visits} max={funnelTotals.visits} color="oklch(0.445 0.059 241.9)" />
+            <ProgressBar label="Froze 1+" value={funnelTotals.froze1} max={funnelTotals.visits} color="oklch(0.55 0.07 241)" />
+            <ProgressBar label="All 3 Frozen" value={funnelTotals.frozeAll} max={funnelTotals.visits} color="oklch(0.7 0.09 240)" />
+            <ProgressBar label="Signed Up" value={funnelTotals.signups} max={funnelTotals.visits} color="oklch(0.849 0.083 240.9)" />
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-card p-4">
+          <h2 className="text-sm font-semibold mb-4">All Freeze Sessions</h2>
+          {(() => {
+            const maxVal = Math.max(overallStats.froze1, overallStats.signups, 1);
+            return (
+              <div className="space-y-3">
+                <ProgressBar label="Froze 1+" value={overallStats.froze1} max={maxVal} color="oklch(0.445 0.059 241.9)" />
+                <ProgressBar label="All 3 Frozen" value={overallStats.frozeAll} max={maxVal} color="oklch(0.55 0.07 241)" />
+                <ProgressBar label="Signed Up" value={overallStats.signups} max={maxVal} color="oklch(0.7 0.09 240)" />
+                <ProgressBar label="Direct" value={directStats.froze1} max={maxVal} color="oklch(0.849 0.083 240.9)" />
+              </div>
+            );
+          })()}
+          <p className="text-[10px] text-muted-foreground mt-3">Includes anonymous users who froze without signing up. Direct = no breach code.</p>
+        </div>
+      </div>
 
       {/* Breach performance table */}
       <div>
@@ -422,10 +451,10 @@ export function AdminDashboardClient({
                 <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Code</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Name</th>
                 <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Visits</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Signups</th>
                 <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Froze 1+</th>
                 <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">All 3</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Completion</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Signups</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Conversion</th>
                 <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground">Status</th>
               </tr>
             </thead>
@@ -438,7 +467,7 @@ export function AdminDashboardClient({
                 </tr>
               ) : (
                 filteredFunnel.map((row) => {
-                  const completion = row.signups > 0 ? ((row.frozeAll / row.signups) * 100).toFixed(1) : "0.0";
+                  const conversion = row.visits > 0 ? ((row.signups / row.visits) * 100).toFixed(1) : "0.0";
                   const isExpanded = expandedCode === row.code;
                   return (
                     <tr key={row.code}>
@@ -454,10 +483,10 @@ export function AdminDashboardClient({
                             <div className="flex-1 px-4 py-2.5 font-mono text-xs font-medium">{row.code}</div>
                             <div className="flex-1 px-4 py-2.5 text-xs">{row.name}</div>
                             <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.visits.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.signups.toLocaleString()}</div>
                             <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.froze1.toLocaleString()}</div>
                             <div className="px-4 py-2.5 text-right text-xs tabular-nums w-14">{row.frozeAll.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-20 font-medium">{completion}%</div>
+                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.signups.toLocaleString()}</div>
+                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-20 font-medium">{conversion}%</div>
                             <div className="px-4 py-2.5 text-center w-20">
                               <Badge variant={row.active ? "default" : "secondary"} className="text-[10px]">
                                 {row.active ? "Active" : "Inactive"}
@@ -470,9 +499,9 @@ export function AdminDashboardClient({
                             <p className="text-xs font-medium text-muted-foreground mb-3">Funnel: {row.code}</p>
                             <div className="space-y-2 max-w-lg">
                               <ProgressBar label="Visits" value={row.visits} max={row.visits} color="oklch(0.445 0.059 241.9)" />
-                              <ProgressBar label="Signed Up" value={row.signups} max={row.visits} color="oklch(0.55 0.07 241)" />
-                              <ProgressBar label="Froze 1+" value={row.froze1} max={row.visits} color="oklch(0.7 0.09 240)" />
-                              <ProgressBar label="All 3 Frozen" value={row.frozeAll} max={row.visits} color="oklch(0.849 0.083 240.9)" />
+                              <ProgressBar label="Froze 1+" value={row.froze1} max={row.visits} color="oklch(0.55 0.07 241)" />
+                              <ProgressBar label="All 3 Frozen" value={row.frozeAll} max={row.visits} color="oklch(0.7 0.09 240)" />
+                              <ProgressBar label="Signed Up" value={row.signups} max={row.visits} color="oklch(0.849 0.083 240.9)" />
                             </div>
                           </div>
                         )}

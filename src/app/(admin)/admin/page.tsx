@@ -14,6 +14,7 @@ export default async function AdminDashboardPage() {
     { data: userSignups },
     { data: breachUsers },
     { data: allBureauStatuses },
+    { data: freezeEvents },
   ] = await Promise.all([
     // Total users
     supabase.from("users").select("*", { count: "exact", head: true }),
@@ -29,10 +30,10 @@ export default async function AdminDashboardPage() {
       .select("breach_code, source, created_at")
       .order("created_at", { ascending: false }),
 
-    // Signup source breakdown
+    // Signup source breakdown (include id for freeze stats)
     supabase
       .from("users")
-      .select("signup_source, signup_breach_code"),
+      .select("id, signup_source, signup_breach_code"),
 
     // Signups this week
     supabase
@@ -62,6 +63,11 @@ export default async function AdminDashboardPage() {
     supabase
       .from("bureau_status")
       .select("user_id, bureau, status"),
+
+    // Anonymous freeze events (for breach funnel)
+    supabase
+      .from("breach_freeze_events")
+      .select("breach_code, bureau, session_id"),
   ]);
 
   // Compute bureau breakdown
@@ -104,15 +110,29 @@ export default async function AdminDashboardPage() {
     breachFunnel[visit.breach_code].visits++;
   }
 
-  // Count signups and freeze progress
+  // Count signups per breach code
   for (const user of breachUsers ?? []) {
     const code = user.signup_breach_code;
     if (!code || !breachFunnel[code]) continue;
     breachFunnel[code].signups++;
-    const frozen = userFrozenCount.get(user.id) ?? 0;
-    if (frozen >= 1) breachFunnel[code].froze1++;
-    if (frozen >= 2) breachFunnel[code].froze2++;
-    if (frozen >= 3) breachFunnel[code].frozeAll++;
+  }
+
+  // Count anonymous freeze events per breach code (from breach_freeze_events table)
+  // Group by session_id to count unique sessions that froze 1+, 2+, or all 3
+  const sessionBureaus = new Map<string, { code: string | null; bureaus: Set<string> }>();
+  for (const event of freezeEvents ?? []) {
+    const key = `${event.session_id}:${event.breach_code ?? "__direct__"}`;
+    if (!sessionBureaus.has(key)) {
+      sessionBureaus.set(key, { code: event.breach_code, bureaus: new Set() });
+    }
+    sessionBureaus.get(key)!.bureaus.add(event.bureau);
+  }
+
+  for (const [, { code, bureaus }] of sessionBureaus) {
+    if (!code || !breachFunnel[code]) continue;
+    if (bureaus.size >= 1) breachFunnel[code].froze1++;
+    if (bureaus.size >= 2) breachFunnel[code].froze2++;
+    if (bureaus.size >= 3) breachFunnel[code].frozeAll++;
   }
 
   // Signup source breakdown
@@ -121,6 +141,44 @@ export default async function AdminDashboardPage() {
     const src = user.signup_source ?? "unknown";
     sourceBreakdown[src] = (sourceBreakdown[src] ?? 0) + 1;
   }
+
+  // Overall funnel: all anonymous freeze sessions + signed-up users
+  const overallStats = { signups: totalUsers ?? 0, froze1: 0, froze2: 0, frozeAll: 0 };
+  const directStats = { signups: 0, froze1: 0, froze2: 0, frozeAll: 0 };
+
+  // Count all unique anonymous sessions that froze (from freeze events)
+  const allSessionBureaus = new Map<string, Set<string>>();
+  const directSessionBureaus = new Map<string, Set<string>>();
+  for (const event of freezeEvents ?? []) {
+    if (!allSessionBureaus.has(event.session_id)) {
+      allSessionBureaus.set(event.session_id, new Set());
+    }
+    allSessionBureaus.get(event.session_id)!.add(event.bureau);
+
+    if (!event.breach_code) {
+      if (!directSessionBureaus.has(event.session_id)) {
+        directSessionBureaus.set(event.session_id, new Set());
+      }
+      directSessionBureaus.get(event.session_id)!.add(event.bureau);
+    }
+  }
+
+  for (const [, bureaus] of allSessionBureaus) {
+    if (bureaus.size >= 1) overallStats.froze1++;
+    if (bureaus.size >= 2) overallStats.froze2++;
+    if (bureaus.size >= 3) overallStats.frozeAll++;
+  }
+
+  for (const [, bureaus] of directSessionBureaus) {
+    directStats.signups++; // count unique direct sessions
+    if (bureaus.size >= 1) directStats.froze1++;
+    if (bureaus.size >= 2) directStats.froze2++;
+    if (bureaus.size >= 3) directStats.frozeAll++;
+  }
+
+  // Also count signed-up users without breach codes
+  const directSignupCount = (signupSources ?? []).filter(u => !u.signup_breach_code).length;
+  directStats.signups = Math.max(directStats.signups, directSignupCount);
 
   // Signup trend: group by day
   const signupTrend: { date: string; signups: number }[] = [];
@@ -170,6 +228,8 @@ export default async function AdminDashboardPage() {
       breachVisits={(breachVisits ?? []) as { breach_code: string; source: string; created_at: string }[]}
       signupTrend={signupTrend}
       visitTrend={visitTrend}
+      overallStats={overallStats}
+      directStats={directStats}
     />
   );
 }

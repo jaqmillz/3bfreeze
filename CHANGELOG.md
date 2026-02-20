@@ -1,5 +1,25 @@
 # Changelog
 
+## [v2.2.0] — 2026-02-20
+
+### Features
+- **Admin dashboard**: Full analytics dashboard at `/admin` with stats cards, activity trends, bureau breakdown donut, signup sources bar chart, and breach code performance table with expandable per-code funnels
+- **Breach code management**: CRUD interface for breach codes at `/admin/breaches` — create, edit, activate/deactivate breach codes from the UI instead of hardcoded TypeScript
+- **Anonymous freeze event tracking**: New `breach_freeze_events` table and `/api/breach-freeze` endpoint track freeze completions server-side for anonymous users, closing the data gap where users who froze without signing up were invisible to analytics
+- **Conversion funnel**: Breach funnel shows Visits → Froze 1+ → All 3 Frozen → Signed Up (matching the actual user flow where signup happens after freezing)
+- **Overall freeze sessions panel**: Shows aggregate freeze stats across all users including anonymous sessions and direct (non-breach-code) visitors
+- **shadcn/ui charts**: Replaced custom Recharts code with shadcn ChartContainer/ChartTooltip components for consistent theming
+- **Trailing-day trends**: Activity trends default to 14-day view with 7d/14d/30d/90d picker, filling zero-days for continuous x-axis
+- **CSV export**: Export breach code performance data with full funnel metrics
+
+### Infrastructure
+- **Migration 005**: `breach_codes` table — moves breach codes from hardcoded TS to database with RLS
+- **Migration 006**: `breach_freeze_events` table — anonymous freeze tracking with unique constraint deduplication
+- **Service role client**: `createServiceClient()` for admin queries bypassing RLS
+- **Admin auth**: Env var `ADMIN_EMAILS` checked in middleware, non-admins redirected to `/dashboard`
+- **Session ID**: Persistent `crypto.randomUUID()` in localStorage for anonymous freeze event deduplication
+- **Breach codes async**: `getBreachByCode()` now queries DB instead of hardcoded constant
+
 ## [v2.1.0] — 2026-02-19
 
 ### Features
