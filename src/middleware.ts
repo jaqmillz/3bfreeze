@@ -6,7 +6,9 @@ export async function middleware(request: NextRequest) {
 
   // If SITE_PASSWORD is set, gate the entire site behind it
   if (sitePassword) {
-    const isPasswordRoute = request.nextUrl.pathname === "/site-password";
+    const isPasswordRoute =
+      request.nextUrl.pathname === "/site-password" ||
+      request.nextUrl.pathname === "/api/site-password";
     const hasAccess = request.cookies.get("site_access")?.value === sitePassword;
 
     if (!hasAccess && !isPasswordRoute) {
@@ -14,6 +16,11 @@ export async function middleware(request: NextRequest) {
       url.pathname = "/site-password";
       url.searchParams.set("next", request.nextUrl.pathname);
       return NextResponse.redirect(url);
+    }
+
+    // Skip auth checks for the password page itself
+    if (isPasswordRoute) {
+      return NextResponse.next();
     }
   }
 
