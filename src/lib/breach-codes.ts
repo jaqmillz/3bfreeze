@@ -1,59 +1,41 @@
+import { createClient } from "@/lib/supabase/server";
+
 export interface BreachInfo {
+  id: string;
   code: string;
   name: string;
   description: string;
   date: string;
-  recordsAffected?: string;
+  recordsAffected: string | null;
   dataExposed: string[];
+  active: boolean;
 }
 
-export const BREACH_CODES: Record<string, BreachInfo> = {
-  ACME2024: {
-    code: "ACME2024",
-    name: "Acme Corp Data Breach",
-    description:
-      "In September 2024, Acme Corp disclosed that an unauthorized party accessed customer databases containing personal information. The breach affected customers who created accounts between 2019 and 2024.",
-    date: "September 2024",
-    recordsAffected: "2.4 million",
-    dataExposed: [
-      "Social Security Numbers",
-      "Names",
-      "Addresses",
-      "Phone Numbers",
-    ],
-  },
-  HEALTH2024: {
-    code: "HEALTH2024",
-    name: "National Health Network Breach",
-    description:
-      "In November 2024, National Health Network reported a cybersecurity incident involving unauthorized access to patient and member records. The breach was discovered during a routine security audit.",
-    date: "November 2024",
-    recordsAffected: "5.1 million",
-    dataExposed: [
-      "Social Security Numbers",
-      "Names",
-      "Dates of Birth",
-      "Addresses",
-      "Insurance Information",
-    ],
-  },
-  BANK2024: {
-    code: "BANK2024",
-    name: "First Federal Bank Incident",
-    description:
-      "In January 2025, First Federal Bank notified customers of a data breach that exposed financial and personal records. The breach occurred through a compromised third-party vendor.",
-    date: "January 2025",
-    recordsAffected: "890,000",
-    dataExposed: [
-      "Social Security Numbers",
-      "Names",
-      "Account Numbers",
-      "Addresses",
-      "Phone Numbers",
-    ],
-  },
-};
+/**
+ * Look up a breach code from the database (server-side only).
+ * Returns null if the code doesn't exist or is inactive.
+ */
+export async function getBreachByCode(
+  code: string
+): Promise<BreachInfo | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("breach_codes")
+    .select("id, code, name, description, date, records_affected, data_exposed, active")
+    .eq("code", code.toUpperCase())
+    .eq("active", true)
+    .maybeSingle();
 
-export function getBreachByCode(code: string): BreachInfo | null {
-  return BREACH_CODES[code.toUpperCase()] ?? null;
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    code: data.code,
+    name: data.name,
+    description: data.description,
+    date: data.date,
+    recordsAffected: data.records_affected,
+    dataExposed: data.data_exposed,
+    active: data.active,
+  };
 }

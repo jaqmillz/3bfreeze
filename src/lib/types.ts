@@ -1,5 +1,18 @@
 export type Bureau = "equifax" | "transunion" | "experian";
 
+export interface BreachCode {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  date: string;
+  records_affected: string | null;
+  data_exposed: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export type FreezeStatus = "frozen" | "not_frozen";
 
 export type WorkflowStep =

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "breach_code too long" }, { status: 400 });
     }
 
-    if (!getBreachByCode(breach_code)) {
+    if (!(await getBreachByCode(breach_code))) {
       return NextResponse.json({ error: "unknown breach code" }, { status: 400 });
     }
 

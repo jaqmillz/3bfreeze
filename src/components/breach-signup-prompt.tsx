@@ -6,7 +6,7 @@ import { ArrowRight, ShieldCheck, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { clearState } from "@/lib/breach-workflow-storage";
 
-export function BreachSignupPrompt({ breachCode }: { breachCode: string }) {
+export function BreachSignupPrompt({ breachCode, breachName }: { breachCode: string; breachName?: string }) {
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) {
@@ -35,7 +35,7 @@ export function BreachSignupPrompt({ breachCode }: { breachCode: string }) {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Button asChild className="gap-2">
-            <Link href={`/signup?breach=${breachCode}`}>
+            <Link href={`/signup?breach=${breachCode}${breachName ? `&breachName=${encodeURIComponent(breachName)}` : ""}`}>
               Create Account
               <ArrowRight className="h-4 w-4" />
             </Link>

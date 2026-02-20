@@ -10,7 +10,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { code } = await params;
-  const breach = getBreachByCode(code);
+  const breach = await getBreachByCode(code);
   if (!breach) {
     return { title: "Invalid Code — 3Bfreeze" };
   }
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BreachCodePage({ params }: Props) {
   const { code } = await params;
-  const breach = getBreachByCode(code);
+  const breach = await getBreachByCode(code);
 
   if (!breach) {
     const supabase = await createClient();

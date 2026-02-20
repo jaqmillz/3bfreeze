@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FadeUp } from "@/components/animate";
 import { HeroGradient } from "@/components/gradient-bg";
-import { getBreachByCode } from "@/lib/breach-codes";
 
 export default function BreachCodeEntryPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [invalidCode, setInvalidCode] = useState(false);
+  const [checking, setChecking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus the input after animations settle
@@ -23,7 +23,7 @@ export default function BreachCodeEntryPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -33,16 +33,28 @@ export default function BreachCodeEntryPage() {
       return;
     }
 
-    const breach = getBreachByCode(trimmed);
-    if (!breach) {
-      setError("No existing code");
-      setInvalidCode(true);
-      return;
+    setChecking(true);
+    try {
+      const res = await fetch("/api/breach-validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: trimmed }),
+      });
+
+      if (!res.ok) {
+        setError("No existing code");
+        setInvalidCode(true);
+        setChecking(false);
+        return;
+      }
+
+      const breach = await res.json();
+      setInvalidCode(false);
+      router.push(`/breach/${breach.code}`);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setChecking(false);
     }
-
-    setInvalidCode(false);
-
-    router.push(`/breach/${breach.code}`);
   }
 
   return (
@@ -94,14 +106,15 @@ export default function BreachCodeEntryPage() {
             }}
             className={`text-center text-lg tracking-wider ${invalidCode ? "border-destructive focus-visible:ring-destructive" : ""}`}
             aria-invalid={invalidCode}
+            disabled={checking}
           />
           {error && (
             <p className="text-center text-xs text-destructive">{error}</p>
           )}
           {!invalidCode ? (
-            <Button type="submit" className="w-full gap-2">
-              Continue
-              <ArrowRight className="h-4 w-4" />
+            <Button type="submit" className="w-full gap-2" disabled={checking}>
+              {checking ? "Checking..." : "Continue"}
+              {!checking && <ArrowRight className="h-4 w-4" />}
             </Button>
           ) : (
             <Button type="button" asChild className="w-full gap-2">

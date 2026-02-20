@@ -21,7 +21,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/animate";
 import { getPasswordStrength } from "@/lib/utils";
-import { getBreachByCode } from "@/lib/breach-codes";
 import { loadState as loadFreezeState } from "@/lib/freeze-flow-storage";
 
 interface FieldErrors {
@@ -45,7 +44,7 @@ function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const breachCode = searchParams.get("breach");
-  const breachInfo = breachCode ? getBreachByCode(breachCode) : null;
+  const breachName = searchParams.get("breachName");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -135,16 +134,16 @@ function SignupContent() {
       // Persist signup attribution (migration handled by WorkflowMigrator in app layout)
       try {
         let signupSource = "organic";
-        if (breachInfo) signupSource = "breach";
+        if (breachCode) signupSource = "breach";
 
         const freezeFlowState = loadFreezeState();
-        if (!breachInfo && freezeFlowState && freezeFlowState.source === "direct") {
+        if (!breachCode && freezeFlowState && freezeFlowState.source === "direct") {
           signupSource = "direct_freeze";
         }
 
         await supabase.from("users").update({
           signup_source: signupSource,
-          signup_breach_code: breachInfo?.code ?? null,
+          signup_breach_code: breachCode ?? null,
         }).eq("id", user.id);
       } catch {
         // Attribution failed silently — user still gets account
@@ -197,8 +196,8 @@ function SignupContent() {
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-bold">Create your account</CardTitle>
           <CardDescription>
-            {breachInfo
-              ? `Save your ${breachInfo.name} freeze progress`
+            {breachName
+              ? `Save your ${breachName} freeze progress`
               : "Get started with 3Bfreeze for free"}
           </CardDescription>
         </CardHeader>

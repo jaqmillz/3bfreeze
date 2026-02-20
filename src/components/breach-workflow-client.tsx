@@ -611,7 +611,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
 
         <CredentialTip />
 
-        <BreachSignupPrompt breachCode={breach.code} />
+        <BreachSignupPrompt breachCode={breach.code} breachName={breach.name} />
 
         <div className="pt-2">
           <button

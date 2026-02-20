@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getBreachByCode } from "@/lib/breach-codes";
 
 export function BreachCodeEntry() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -22,20 +22,34 @@ export function BreachCodeEntry() {
       return;
     }
 
-    const breach = getBreachByCode(trimmed);
-    if (!breach) {
-      setError("Code not recognized. Check your letter and try again.");
-      return;
+    setChecking(true);
+    try {
+      const res = await fetch("/api/breach-validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: trimmed }),
+      });
+
+      if (!res.ok) {
+        setError("Code not recognized. Check your letter and try again.");
+        setChecking(false);
+        return;
+      }
+
+      const breach = await res.json();
+
+      // Log breach visit from homepage (fire-and-forget)
+      fetch("/api/breach-visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ breach_code: breach.code, source: "homepage" }),
+      }).catch(() => {});
+
+      router.push(`/breach/${breach.code}`);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setChecking(false);
     }
-
-    // Log breach visit from homepage (fire-and-forget)
-    fetch("/api/breach-visit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ breach_code: breach.code, source: "homepage" }),
-    }).catch(() => {});
-
-    router.push(`/breach/${breach.code}`);
   }
 
   return (
@@ -58,11 +72,12 @@ export function BreachCodeEntry() {
           }}
           className={`text-center tracking-wider ${error ? "border-destructive focus-visible:ring-destructive" : ""}`}
           aria-invalid={!!error}
+          disabled={checking}
         />
         {code.trim() && (
-          <Button type="submit" className="w-full gap-2">
-            Continue
-            <ArrowRight className="h-4 w-4" />
+          <Button type="submit" className="w-full gap-2" disabled={checking}>
+            {checking ? "Checking..." : "Continue"}
+            {!checking && <ArrowRight className="h-4 w-4" />}
           </Button>
         )}
       </form>
