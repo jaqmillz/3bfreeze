@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.2.2] — 2026-02-20
+
+- Fix breach code performance table column alignment — replace colSpan+flex layout with proper `<td>` cells so header and body columns align correctly
+
 ## [v2.2.1] — 2026-02-20
 
 - Remove unused imports (XCircle, Loader2) from workflow components

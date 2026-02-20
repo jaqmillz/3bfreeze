@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import {
   Users,
   Snowflake,
@@ -470,32 +470,30 @@ export function AdminDashboardClient({
                   const conversion = row.visits > 0 ? ((row.signups / row.visits) * 100).toFixed(1) : "0.0";
                   const isExpanded = expandedCode === row.code;
                   return (
-                    <tr key={row.code}>
-                      <td colSpan={9} className="p-0">
-                        <button
-                          onClick={() => setExpandedCode(isExpanded ? null : row.code)}
-                          className="w-full text-left hover:bg-muted/30 transition-colors border-b"
-                        >
-                          <div className="flex items-center">
-                            <div className="w-8 flex items-center justify-center">
-                              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                            </div>
-                            <div className="flex-1 px-4 py-2.5 font-mono text-xs font-medium">{row.code}</div>
-                            <div className="flex-1 px-4 py-2.5 text-xs">{row.name}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.visits.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.froze1.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-14">{row.frozeAll.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-16">{row.signups.toLocaleString()}</div>
-                            <div className="px-4 py-2.5 text-right text-xs tabular-nums w-20 font-medium">{conversion}%</div>
-                            <div className="px-4 py-2.5 text-center w-20">
-                              <Badge variant={row.active ? "default" : "secondary"} className="text-[10px]">
-                                {row.active ? "Active" : "Inactive"}
-                              </Badge>
-                            </div>
-                          </div>
-                        </button>
-                        {isExpanded && (
-                          <div className="px-4 py-4 bg-muted/20 border-b">
+                    <Fragment key={row.code}>
+                      <tr
+                        onClick={() => setExpandedCode(isExpanded ? null : row.code)}
+                        className="border-b hover:bg-muted/30 transition-colors cursor-pointer"
+                      >
+                        <td className="w-8 text-center">
+                          <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform inline-block ${isExpanded ? "rotate-180" : ""}`} />
+                        </td>
+                        <td className="px-4 py-2.5 font-mono text-xs font-medium">{row.code}</td>
+                        <td className="px-4 py-2.5 text-xs">{row.name}</td>
+                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.visits.toLocaleString()}</td>
+                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.froze1.toLocaleString()}</td>
+                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.frozeAll.toLocaleString()}</td>
+                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.signups.toLocaleString()}</td>
+                        <td className="px-4 py-2.5 text-right text-xs tabular-nums font-medium">{conversion}%</td>
+                        <td className="px-4 py-2.5 text-center">
+                          <Badge variant={row.active ? "default" : "secondary"} className="text-[10px]">
+                            {row.active ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="border-b">
+                          <td colSpan={9} className="px-4 py-4 bg-muted/20">
                             <p className="text-xs font-medium text-muted-foreground mb-3">Funnel: {row.code}</p>
                             <div className="space-y-2 max-w-lg">
                               <ProgressBar label="Visits" value={row.visits} max={row.visits} color="oklch(0.445 0.059 241.9)" />
@@ -503,10 +501,10 @@ export function AdminDashboardClient({
                               <ProgressBar label="All 3 Frozen" value={row.frozeAll} max={row.visits} color="oklch(0.7 0.09 240)" />
                               <ProgressBar label="Signed Up" value={row.signups} max={row.visits} color="oklch(0.849 0.083 240.9)" />
                             </div>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })
               )}
