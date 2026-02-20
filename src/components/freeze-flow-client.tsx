@@ -16,7 +16,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -350,12 +349,7 @@ export function FreezeFlowClient() {
           </p>
         )}
 
-        <NavigationFooter
-          onNext={handleChecklistComplete}
-          nextLabel="Continue"
-          nextDisabled={!allChecked}
-          showBack={false}
-        />
+        {NavigationFooter({ onNext: handleChecklistComplete, nextLabel: "Continue", nextDisabled: !allChecked, showBack: false })}
       </div>
     );
   }
@@ -550,7 +544,7 @@ export function FreezeFlowClient() {
           )}
         </div>
 
-        <NavigationFooter />
+        {NavigationFooter({})}
       </div>
     );
   }
@@ -619,7 +613,7 @@ export function FreezeFlowClient() {
           </button>
         )}
 
-        <CredentialTip />
+        {CredentialTip()}
 
         <FreezeSignupPrompt />
 
@@ -735,14 +729,15 @@ export function FreezeFlowClient() {
       </div>
 
       <div ref={stepperRef} className="scroll-mt-16">
-        <StepperHeader />
+        {StepperHeader()}
       </div>
 
-      {currentStep === "checklist" && <ChecklistStep />}
-      {currentStep === "equifax" && <BureauStep bureau="equifax" />}
-      {currentStep === "transunion" && <BureauStep bureau="transunion" />}
-      {currentStep === "experian" && <BureauStep bureau="experian" />}
-      {currentStep === "complete" && <CompletionStep />}
+      {/* eslint-disable-next-line react-hooks/refs -- ref accessed in onClick handler, not during render */}
+      {currentStep === "checklist" && ChecklistStep()}
+      {currentStep === "equifax" && BureauStep({ bureau: "equifax" })}
+      {currentStep === "transunion" && BureauStep({ bureau: "transunion" })}
+      {currentStep === "experian" && BureauStep({ bureau: "experian" })}
+      {currentStep === "complete" && CompletionStep()}
 
       {freezeIssueModal}
     </div>

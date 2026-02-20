@@ -17,7 +17,7 @@ import {
   XCircle,
   AlertTriangle,
 } from "lucide-react";
-import type { ActivityLogEntry, Bureau, ActivityAction, ActivitySource } from "@/lib/types";
+import type { ActivityLogEntry, Bureau, ActivityAction } from "@/lib/types";
 
 const BUREAU_LABELS: Record<Bureau, string> = {
   equifax: "Equifax",
@@ -41,11 +41,6 @@ const ACTION_FILTER_LABELS: Record<string, string> = {
   thaw_cancelled: "Unfreeze cancelled",
 };
 
-const SOURCE_LABELS: Record<ActivitySource, string> = {
-  freeze_workflow: "Workflow",
-  manual_update: "Manual",
-  scheduled_thaw: "Scheduled",
-};
 
 function ActionIcon({ action }: { action: ActivityAction }) {
   switch (action) {

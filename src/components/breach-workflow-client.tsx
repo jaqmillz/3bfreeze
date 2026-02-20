@@ -15,7 +15,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -351,12 +350,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
           </p>
         )}
 
-        <NavigationFooter
-          onNext={handleChecklistComplete}
-          nextLabel="Continue"
-          nextDisabled={!allChecked}
-          showBack={false}
-        />
+        {NavigationFooter({ onNext: handleChecklistComplete, nextLabel: "Continue", nextDisabled: !allChecked, showBack: false })}
       </div>
     );
   }
@@ -551,7 +545,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
           )}
         </div>
 
-        <NavigationFooter />
+        {NavigationFooter({})}
       </div>
     );
   }
@@ -620,7 +614,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
           </button>
         )}
 
-        <CredentialTip />
+        {CredentialTip()}
 
         <BreachSignupPrompt breachCode={breach.code} breachName={breach.name} />
 
@@ -723,14 +717,15 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
     <div className="mx-auto max-w-2xl space-y-6 pb-24">
       <BreachHero breach={breach} collapsible={currentStep !== "checklist"} />
       <div ref={stepperRef} className="scroll-mt-16">
-        <StepperHeader />
+        {StepperHeader()}
       </div>
 
-      {currentStep === "checklist" && <ChecklistStep />}
-      {currentStep === "equifax" && <BureauStep bureau="equifax" />}
-      {currentStep === "transunion" && <BureauStep bureau="transunion" />}
-      {currentStep === "experian" && <BureauStep bureau="experian" />}
-      {currentStep === "complete" && <CompletionStep />}
+      {/* eslint-disable-next-line react-hooks/refs -- ref accessed in onClick handler, not during render */}
+      {currentStep === "checklist" && ChecklistStep()}
+      {currentStep === "equifax" && BureauStep({ bureau: "equifax" })}
+      {currentStep === "transunion" && BureauStep({ bureau: "transunion" })}
+      {currentStep === "experian" && BureauStep({ bureau: "experian" })}
+      {currentStep === "complete" && CompletionStep()}
 
       {freezeIssueModal}
     </div>

@@ -163,6 +163,7 @@ export function AdminDashboardClient({
   const [dateRange, setDateRange] = useState("all");
   const [trendRange, setTrendRange] = useState("14d");
   const [expandedCode, setExpandedCode] = useState<string | null>(null);
+  const [filterTimestamp] = useState(Date.now);
 
   const signupMap = useMemo(() => {
     const m = new Map<string, number>();
@@ -192,9 +193,9 @@ export function AdminDashboardClient({
   const filteredVisits = useMemo(() => {
     if (dateRange === "all") return breachVisits;
     const days = dateRange === "7d" ? 7 : dateRange === "30d" ? 30 : 90;
-    const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+    const cutoff = new Date(filterTimestamp - days * 86400000).toISOString();
     return breachVisits.filter((v) => v.created_at >= cutoff);
-  }, [breachVisits, dateRange]);
+  }, [breachVisits, dateRange, filterTimestamp]);
 
   const filteredFunnel = useMemo(() => {
     if (dateRange === "all") return breachFunnel;

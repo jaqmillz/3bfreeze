@@ -7,7 +7,6 @@ import { Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -19,7 +18,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { BreachCode } from "@/lib/types";
-import { createClient } from "@/lib/supabase/client";
 
 interface BreachCodeWithStats extends BreachCode {
   visits: number;
@@ -82,7 +80,6 @@ export function BreachesClient({ breachCodes }: Props) {
 
     setSaving(true);
     try {
-      const supabase = createClient();
       const payload = {
         code: form.code.trim().toUpperCase(),
         name: form.name.trim(),

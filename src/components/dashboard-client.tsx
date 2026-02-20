@@ -21,7 +21,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -615,8 +614,6 @@ function BureauCard({
 export function DashboardClient({
   bureauStatuses,
   thawReminders,
-  workflowProgress,
-  userName,
 }: DashboardClientProps) {
   const [thawModalOpen, setThawModalOpen] = useState(false);
   const [cancelThawModalOpen, setCancelThawModalOpen] = useState(false);

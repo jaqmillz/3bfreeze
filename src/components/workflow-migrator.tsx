@@ -47,8 +47,6 @@ export function WorkflowMigrator({ userId }: { userId: string }) {
 
         const state = breachState ?? freezeState;
         if (!state) return;
-        const source = breachState ? "breach" : "direct";
-
         // Only migrate direct freeze-flow state (not breach-sourced freeze state)
         if (!breachState && freezeState && freezeState.source !== "direct") return;
 

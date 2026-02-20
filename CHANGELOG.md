@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.2.3] — 2026-02-20
+
+- Add site-wide password gate via middleware — redirects all visitors to a password page before accessing any route
+- Fix Suspense boundary and redirect loop in password gate flow
+- Fix all ESLint errors and warnings: resolve React compiler purity/refs/static-component rules, remove unused imports and dead code across 9 files
+
 ## [v2.2.2] — 2026-02-20
 
 - Fix breach code performance table column alignment — replace colSpan+flex layout with proper `<td>` cells so header and body columns align correctly

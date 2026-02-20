@@ -39,7 +39,8 @@ export default async function AdminDashboardPage() {
     supabase
       .from("users")
       .select("*", { count: "exact", head: true })
-      .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString()),
+      // eslint-disable-next-line react-hooks/purity -- server component renders once per request
+      .gte("created_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
 
     // All breach codes for reference
     supabase

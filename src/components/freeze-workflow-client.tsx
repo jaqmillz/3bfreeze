@@ -18,7 +18,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -124,7 +123,7 @@ export function FreezeWorkflowClient({
   );
 
   // Bureau completion tracking (local, mirrors DB)
-  const [bureauCompleted, setBureauCompleted] = useState<
+  const [, setBureauCompleted] = useState<
     Record<Bureau, boolean>
   >({
     equifax: initialProgress?.equifax_completed ?? false,
@@ -150,7 +149,6 @@ export function FreezeWorkflowClient({
   // ---------------------------------------------------------------------------
 
   const stepIndex = STEPS.findIndex((s) => s.key === currentStep);
-  const progressPercent = (stepIndex / (STEPS.length - 1)) * 100;
   const allChecked = checkedItems.every(Boolean);
 
   function getBureauStatus(bureau: Bureau): "frozen" | "not_frozen" | "issue" {
@@ -745,7 +743,7 @@ export function FreezeWorkflowClient({
         hasSavedCompletion.current = true;
         handleCompletionView();
       }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     const allFrozen =
       getBureauStatus("equifax") === "frozen" &&
