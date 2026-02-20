@@ -1,5 +1,30 @@
 # Changelog
 
+## [v2.1.0] — 2026-02-19
+
+### Features
+- **Anonymous /freeze flow**: New public route lets anyone freeze credit without an account, with signup prompt at completion
+- **Breach analytics**: Anonymous visit tracking per breach code (no PII), signup attribution (breach/direct_freeze/organic)
+- **Breach code entry on homepage**: Enter a breach code directly from the landing page
+- **Workflow migration**: localStorage progress automatically migrates to DB on any auth path (login, signup, OAuth) — only logs history when status actually changes
+- **PWA icons**: Dynamic 192x192 and 512x512 icon route handlers (navy blue snowflake)
+
+### Security & Bug Fixes
+- Fix open redirect vulnerability in auth callback (validate `next` param)
+- Fix middleware matching `/freeze` prefix exposing `/freeze-workflow` as public
+- Fix signup redirecting to dashboard instead of verify-email when confirmation required
+- Fix app layout crash when user profile row doesn't exist (`.single()` → `.maybeSingle()`)
+- Add email regex validation on contact form
+- Add DB text length constraints on all unbounded text columns (migration 004)
+- Add in-memory rate limiting on breach-visit API
+- Add error logging to previously silent catch blocks
+- Redirect unrecognized breach codes to homepage (or dashboard if logged in)
+
+### Code Quality
+- Remove duplicate migration logic from signup page (now handled by WorkflowMigrator)
+- Remove unused imports (Loader2, Shield, Snowflake, Bell)
+- Add /freeze to sitemap
+
 ## [v2.0.2] — 2026-02-18
 
 - Strip card containers from homepage "How it works" and "Freeze vs Monitor" sections for seamless page integration
