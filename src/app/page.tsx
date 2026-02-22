@@ -43,9 +43,9 @@ export default function Home() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <a href="#how-it-works">
+            <a href="#why-freeze">
               <Button variant="outline" size="lg" className="w-full px-8 sm:w-auto">
-                How it works
+                Why Freeze?
               </Button>
             </a>
           </div>

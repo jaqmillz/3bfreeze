@@ -30,13 +30,14 @@ export function FreezeSignupPrompt() {
         <h3 className="text-base font-semibold">Save your progress</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Create a free account to track your freeze status, get reminders when
-          you temporarily lift a freeze, and manage future unfreezes.
+          you temporarily lift a freeze, and manage future unfreezes. No credit
+          card, no catch.
         </p>
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Button asChild className="gap-2">
             <Link href="/signup">
-              Create Account
+              Create Free Account
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

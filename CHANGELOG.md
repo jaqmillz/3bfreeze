@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.2.4] — 2026-02-22
+
+- Reinforce "free" messaging across all CTAs — "Get Started" → "Get Started Free", "Create Account" → "Create Free Account", added "No credit card, no catch" to signup prompts
+- Add branded header to standalone `/freeze` page (was missing navigation entirely)
+- Add subtle Admin link in footer for internal team access
+- Homepage secondary CTA changed from "How it works" → "Why Freeze?" targeting the comparison section
+- Create demo breach response PDFs (with vs. without 3Bfreeze) for sales/partnership demos
+
 ## [v2.2.3] — 2026-02-20
 
 - Add site-wide password gate via middleware — redirects all visitors to a password page before accessing any route

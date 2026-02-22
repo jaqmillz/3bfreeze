@@ -37,7 +37,7 @@ export function Footer({ isAuthenticated = false }: { isAuthenticated?: boolean 
             <ul className="mt-2 space-y-1.5">
               <li>
                 <Link href={isAuthenticated ? "/freeze-workflow" : "/signup"} className="text-xs text-foreground/70 hover:text-foreground transition-colors">
-                  Get Started
+                  Get Started Free
                 </Link>
               </li>
               <li>
@@ -100,9 +100,14 @@ export function Footer({ isAuthenticated = false }: { isAuthenticated?: boolean 
           <p className="text-[10px] text-muted-foreground">
             &copy; {new Date().getFullYear()} 3Bfreeze.com
           </p>
-          <p className="text-[10px] text-muted-foreground">
-            Not affiliated with Equifax, TransUnion, or Experian.
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-[10px] text-muted-foreground">
+              Not affiliated with Equifax, TransUnion, or Experian.
+            </p>
+            <Link href="/admin" className="text-[10px] text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

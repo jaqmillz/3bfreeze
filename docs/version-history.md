@@ -2,7 +2,25 @@
 
 **Product**: 3Bfreeze — Credit Freeze Management Tool
 **Website**: 3bfreeze.vercel.app
-**Last Updated**: February 20, 2026
+**Last Updated**: February 22, 2026
+
+---
+
+## v2.2.4 — February 22, 2026
+
+### Free Messaging, Demo Materials & UX Polish
+
+**What was added**
+
+- Reinforced "free" messaging across every CTA on the site — "Get Started" → "Get Started Free", "Create Account" → "Create Free Account", signup page now shows "100% free · No credit card required", and signup prompts include "No credit card, no catch"
+- Added a branded sticky header (3Bfreeze logo) to the standalone `/freeze` page, which previously had no navigation or branding
+- Added a subtle Admin link in the site footer for internal team access to the admin dashboard
+- Changed the homepage secondary CTA from "How it works" → "Why Freeze?" to direct users to the freeze-vs-monitoring comparison section
+- Created demo breach response documents (PDFs) showing a side-by-side comparison of a breach notification letter with and without 3Bfreeze — used for sales and partnership demos
+
+**Why this version exists**
+
+User testing and conversion analysis showed that despite the product being completely free, visitors weren't confident about that. CTAs like "Get Started" and "Create Account" carried an implicit expectation of payment or commitment. This release systematically updated every touchpoint to signal that the product is free, no-catch, and requires no credit card. The demo breach response PDFs were created to support partnership conversations with breach notification vendors — showing the stark contrast between a traditional 3-page remediation appendix and a simple QR code that gets victims to freeze in 15 minutes.
 
 ---
 
@@ -196,4 +214,4 @@ v1.0 is the minimum viable product. Credit freezes are the single most effective
 
 ---
 
-*Document generated February 20, 2026*
+*Document generated February 22, 2026*

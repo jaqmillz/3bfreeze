@@ -1,7 +1,7 @@
 # 3Bfreeze — Technical Specifications
 
-**Version**: 2.2.0
-**Last Updated**: February 20, 2026
+**Version**: 2.2.4
+**Last Updated**: February 22, 2026
 
 ---
 
@@ -260,9 +260,9 @@ The project uses semantic versioning with git tags. Each release is tagged `v{ma
 | Minor (v2.1 → v2.2) | New features or capabilities |
 | Patch (v2.0.1 → v2.0.2) | Bug fixes and polish |
 
-Current version: **v2.2.0**
+Current version: **v2.2.4**
 
-All versions: v1.0, v1.1, v1.1.1, v1.2, v1.2.1, v2.0, v2.0.1, v2.0.2, v2.1.0, v2.2.0
+All versions: v1.0, v1.1, v1.1.1, v1.2, v1.2.1, v2.0, v2.0.1, v2.0.2, v2.1.0, v2.2.0, v2.2.1, v2.2.2, v2.2.3, v2.2.4
 
 ### Branching
 
@@ -346,4 +346,4 @@ Always run migrations **before** deploying code that references new tables or co
 
 ---
 
-*Document generated February 20, 2026*
+*Document generated February 22, 2026*

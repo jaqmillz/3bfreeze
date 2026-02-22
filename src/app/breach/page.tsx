@@ -119,7 +119,7 @@ export default function BreachCodeEntryPage() {
           ) : (
             <Button type="button" asChild className="w-full gap-2">
               <Link href="/signup">
-                Sign Up Instead
+                Sign Up Free Instead
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -132,7 +132,7 @@ export default function BreachCodeEntryPage() {
             href="/signup"
             className="font-medium text-primary hover:underline"
           >
-            You can still protect yourself
+            Protect yourself for free
           </Link>
         </p>
       </FadeUp>

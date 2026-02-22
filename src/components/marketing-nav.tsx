@@ -47,7 +47,7 @@ export function MarketingNav() {
               </Link>
               <Link href="/signup" onClick={() => setOpen(false)}>
                 <button className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-primary text-sm font-medium text-white transition-colors hover:bg-primary/90">
-                  Get Started
+                  Get Started Free
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </Link>
@@ -75,7 +75,7 @@ export function MarketingNav() {
           </Link>
           <Link href="/signup">
             <Button size="sm" className="bg-white text-primary font-semibold hover:bg-white/90 gap-1.5">
-              Get Started
+              Get Started Free
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>

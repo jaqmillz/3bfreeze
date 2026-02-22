@@ -198,8 +198,11 @@ function SignupContent() {
           <CardDescription>
             {breachName
               ? `Save your ${breachName} freeze progress`
-              : "Get started with 3Bfreeze for free"}
+              : "Get started with 3Bfreeze"}
           </CardDescription>
+          <p className="mt-1 text-xs text-muted-foreground/70">
+            100% free &middot; No credit card required
+          </p>
         </CardHeader>
 
         <CardContent>
