@@ -10,15 +10,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -40,6 +31,7 @@ import {
 } from "@/lib/freeze-flow-storage";
 import { getSessionId } from "@/lib/session-id";
 import { FreezeSignupPrompt } from "@/components/freeze-signup-prompt";
+import { FreezeIssueModal } from "@/components/freeze-issue-modal";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -63,13 +55,6 @@ const CHECKLIST_ITEMS = [
   "Answers to identity verification questions",
 ];
 
-const ISSUE_OPTIONS: { value: IssueType; label: string }[] = [
-  { value: "identity_verification", label: "Identity verification failed" },
-  { value: "site_error", label: "Website error or outage" },
-  { value: "asked_to_pay", label: "Was asked to pay" },
-  { value: "confused", label: "Got confused or stuck" },
-  { value: "other", label: "Other issue" },
-];
 
 // ---------------------------------------------------------------------------
 // Component
@@ -99,8 +84,6 @@ export function FreezeFlowClient() {
   // Issue modal state
   const [issueModalOpen, setIssueModalOpen] = useState(false);
   const [issueModalBureau, setIssueModalBureau] = useState<Bureau>("equifax");
-  const [selectedIssue, setSelectedIssue] = useState<IssueType | null>(null);
-  const [issueDetails, setIssueDetails] = useState("");
 
   // ---------------------------------------------------------------------------
   // Helpers
@@ -181,7 +164,7 @@ export function FreezeFlowClient() {
     }).catch(() => {});
   }
 
-  function handleIssueSkip() {
+  function handleIssueSkip(issueType: IssueType, details: string) {
     const next = nextStep(currentStep);
     setState((prev) => ({
       ...prev,
@@ -193,9 +176,20 @@ export function FreezeFlowClient() {
       { duration: 2000 }
     );
     setIssueModalOpen(false);
-    setSelectedIssue(null);
-    setIssueDetails("");
     scrollToStepper();
+
+    // Track anonymous issue server-side (fire-and-forget)
+    fetch("/api/freeze-issue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bureau: issueModalBureau,
+        issue_type: issueType,
+        issue_details: details || null,
+        session_id: getSessionId(),
+        source: "direct",
+      }),
+    }).catch(() => {});
   }
 
   // ---------------------------------------------------------------------------
@@ -630,85 +624,6 @@ export function FreezeFlowClient() {
   }
 
   // ---------------------------------------------------------------------------
-  // Issue Modal
-  // ---------------------------------------------------------------------------
-
-  const freezeIssueModal = (
-    <Dialog open={issueModalOpen} onOpenChange={setIssueModalOpen}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="text-base">What went wrong?</DialogTitle>
-          <DialogDescription className="text-xs">
-            You can skip {BUREAU_INFO[issueModalBureau].name} and come back later.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-2">
-          {ISSUE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setSelectedIssue(option.value)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
-                selectedIssue === option.value
-                  ? "border-primary bg-primary/5"
-                  : "hover:bg-muted/50"
-              )}
-            >
-              <div
-                className={cn(
-                  "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border",
-                  selectedIssue === option.value
-                    ? "border-primary bg-primary"
-                    : "border-muted-foreground/30"
-                )}
-              >
-                {selectedIssue === option.value && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
-                )}
-              </div>
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="issue-details" className="text-xs text-muted-foreground">
-            Details (optional)
-          </Label>
-          <Textarea
-            id="issue-details"
-            placeholder="What happened..."
-            value={issueDetails}
-            onChange={(e) => setIssueDetails(e.target.value)}
-            rows={2}
-          />
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            onClick={() => {
-              setIssueModalOpen(false);
-              setSelectedIssue(null);
-              setIssueDetails("");
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Try again
-          </button>
-          <Button
-            size="sm"
-            onClick={handleIssueSkip}
-            disabled={!selectedIssue}
-          >
-            Skip bureau
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
-  // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
@@ -739,7 +654,13 @@ export function FreezeFlowClient() {
       {currentStep === "experian" && BureauStep({ bureau: "experian" })}
       {currentStep === "complete" && CompletionStep()}
 
-      {freezeIssueModal}
+      <FreezeIssueModal
+        open={issueModalOpen}
+        onOpenChange={setIssueModalOpen}
+        bureau={issueModalBureau}
+        onSkip={handleIssueSkip}
+        saving={false}
+      />
     </div>
   );
 }

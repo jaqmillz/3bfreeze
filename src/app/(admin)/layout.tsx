@@ -51,6 +51,12 @@ export default async function AdminLayout({
               >
                 Breach Codes
               </Link>
+              <Link
+                href="/admin/issues"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Issues
+              </Link>
             </nav>
           </div>
           <Link

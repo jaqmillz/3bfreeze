@@ -23,6 +23,7 @@ export type WorkflowStep =
   | "complete";
 
 export type IssueType =
+  | "account_access"
   | "identity_verification"
   | "site_error"
   | "asked_to_pay"
@@ -107,6 +108,7 @@ export const BUREAU_INFO: Record<
   Bureau,
   {
     name: string;
+    phone: string;
     freezeUrl: string;
     unfreezeUrl: string;
     tip: string;
@@ -115,6 +117,7 @@ export const BUREAU_INFO: Record<
 > = {
   equifax: {
     name: "Equifax",
+    phone: "(888) 298-0045",
     freezeUrl:
       "https://www.equifax.com/personal/credit-report-services/credit-freeze/",
     unfreezeUrl:
@@ -125,6 +128,7 @@ export const BUREAU_INFO: Record<
   },
   transunion: {
     name: "TransUnion",
+    phone: "(888) 909-8872",
     freezeUrl: "https://www.transunion.com/credit-freeze",
     unfreezeUrl: "https://www.transunion.com/credit-freeze",
     tip: "TransUnion may offer a paid credit lock service. Decline this — the free credit freeze provides the same protection.",
@@ -133,6 +137,7 @@ export const BUREAU_INFO: Record<
   },
   experian: {
     name: "Experian",
+    phone: "(888) 397-3742",
     freezeUrl: "https://www.experian.com/freeze/center.html",
     unfreezeUrl: "https://www.experian.com/freeze/center.html",
     tip: "Experian will promote CreditWorks and CreditLock subscriptions. You do not need these. The security freeze is free by law.",

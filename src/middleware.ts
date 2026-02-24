@@ -2,6 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // Redirect uppercase /BREACH/... to lowercase /breach/...
+  const pathname = request.nextUrl.pathname;
+  if (pathname !== pathname.toLowerCase() && pathname.toLowerCase().startsWith("/breach")) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.toLowerCase();
+    return NextResponse.redirect(url, 308);
+  }
+
   const sitePassword = process.env.SITE_PASSWORD;
 
   // If SITE_PASSWORD is set, gate the entire site behind it
