@@ -1,20 +1,28 @@
 # Changelog
 
-## [v2.2.5] — 2026-02-24
+## [v2.3.0] — 2026-02-24
 
-- Add pre-navigation interstitial modal — warns users they're leaving 3Bfreeze and tells them which bureau to freeze next before opening external bureau sites
-- All bureau links (main "Open" button and inline instruction links) now trigger the modal instead of navigating directly
-- Add contextual button labels — "Confirm Freeze & Continue to TransUnion" instead of generic "Confirm freeze", with "Finish" on the last bureau
-- Add tab title flashing — browser tab alternates between page title and "Come back to finish freezing!" when the user switches away during a bureau step
-- Changes applied to both authenticated freeze workflow and anonymous breach workflow
+### Features
+- Add freeze issue reporting — users can report problems during bureau freezes with categorized issue types (account access, site down, identity verification, other)
+- Add admin issues dashboard at `/admin/issues` with filtering, stats, and anonymous issue tracking
+- Add pre-navigation interstitial modal — warns users they're leaving 3Bfreeze before opening external bureau sites
+- Add contextual confirm button labels ("Confirm Freeze & Continue to TransUnion") with "Finish" on the last bureau
+- Add tab title flashing — browser tab alternates with "Come back to finish freezing!" when user switches away during a bureau step
+- Reinforce "free" messaging across all CTAs and signup prompts
+- Add branded header to standalone `/freeze` page
 
-## [v2.2.4] — 2026-02-22
+### Code Quality
+- Extract ~1100 lines of duplicated workflow UI into shared `workflow-shared.tsx` and `workflow-constants.ts`, used by all three workflow entry points
+- Fix hydration mismatch in direct freeze flow (localStorage SSR pattern)
+- Mobile-optimize admin dashboard (responsive table, compact header, hidden columns on small screens)
+- Fix dashboard horizontal scroll on mobile
+- Compact footer layout on mobile
 
-- Reinforce "free" messaging across all CTAs — "Get Started" → "Get Started Free", "Create Account" → "Create Free Account", added "No credit card, no catch" to signup prompts
-- Add branded header to standalone `/freeze` page (was missing navigation entirely)
-- Add subtle Admin link in footer for internal team access
-- Homepage secondary CTA changed from "How it works" → "Why Freeze?" targeting the comparison section
-- Create demo breach response PDFs (with vs. without 3Bfreeze) for sales/partnership demos
+### Infrastructure
+- **Migration 007**: Add `account_access` issue type to `freeze_issue_type` enum
+- **Migration 008**: Create `anonymous_freeze_issues` table for tracking issues from unauthenticated flows
+- New API route `POST /api/freeze-issue` for anonymous issue submission
+- Add admin email authorization check in middleware for `/admin` routes
 
 ## [v2.2.3] — 2026-02-20
 
