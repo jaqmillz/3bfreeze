@@ -53,8 +53,19 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, ...updates } = body;
+    const { id } = body;
     const supabase = createServiceClient();
+
+    // Whitelist allowed fields to prevent arbitrary column updates
+    const ALLOWED_FIELDS = ["code", "name", "description", "date", "records_affected", "data_exposed"] as const;
+    const updates: Record<string, unknown> = {};
+    for (const field of ALLOWED_FIELDS) {
+      if (field in body) updates[field] = body[field];
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+    }
 
     const { error } = await supabase
       .from("breach_codes")
@@ -63,7 +74,7 @@ export async function PUT(request: Request) {
 
     if (error) {
       console.error("Update breach code failed:", error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: "Failed to update breach code" }, { status: 400 });
     }
 
     return NextResponse.json({ ok: true });

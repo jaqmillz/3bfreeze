@@ -30,15 +30,15 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-2 px-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link
               href="/admin"
-              className="text-sm font-bold tracking-tight"
+              className="text-sm font-bold tracking-tight shrink-0"
             >
-              3Bfreeze Admin
+              Admin
             </Link>
-            <nav className="flex items-center gap-3 text-xs">
+            <nav className="flex items-center gap-2 sm:gap-3 text-xs">
               <Link
                 href="/admin"
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -49,7 +49,7 @@ export default async function AdminLayout({
                 href="/admin/breaches"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                Breach Codes
+                Breaches
               </Link>
               <Link
                 href="/admin/issues"
@@ -61,9 +61,9 @@ export default async function AdminLayout({
           </div>
           <Link
             href="/dashboard"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
           >
-            Back to app
+            Back
           </Link>
         </div>
       </header>

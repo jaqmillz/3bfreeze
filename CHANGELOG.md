@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.2.5] — 2026-02-24
+
+- Add pre-navigation interstitial modal — warns users they're leaving 3Bfreeze and tells them which bureau to freeze next before opening external bureau sites
+- All bureau links (main "Open" button and inline instruction links) now trigger the modal instead of navigating directly
+- Add contextual button labels — "Confirm Freeze & Continue to TransUnion" instead of generic "Confirm freeze", with "Finish" on the last bureau
+- Add tab title flashing — browser tab alternates between page title and "Come back to finish freezing!" when the user switches away during a bureau step
+- Changes applied to both authenticated freeze workflow and anonymous breach workflow
+
 ## [v2.2.4] — 2026-02-22
 
 - Reinforce "free" messaging across all CTAs — "Get Started" → "Get Started Free", "Create Account" → "Create Free Account", added "No credit card, no catch" to signup prompts

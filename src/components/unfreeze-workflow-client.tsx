@@ -12,6 +12,14 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
@@ -25,40 +33,42 @@ interface UnfreezeWorkflowClientProps {
   bureauStatuses: BureauStatus[];
 }
 
-function bureauLink(name: string, url: string) {
-  return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">
+function getUnfreezeInstructions(bureau: Bureau, onOpenModal: () => void): (string | React.ReactNode)[] {
+  const link = (name: string) => (
+    <button type="button" onClick={onOpenModal} className="text-primary font-medium hover:underline">
       {name}
-    </a>
+    </button>
   );
-}
 
-const unfreezeInstructions: Record<Bureau, (string | React.ReactNode)[]> = {
-  equifax: [
-    <span key="eq-1">Log in to your account on the {bureauLink("Equifax security freeze page", BUREAU_INFO.equifax.unfreezeUrl)}.</span>,
-    'Your dashboard will show "Your Equifax credit report is frozen." Click "Manage a freeze."',
-    'Choose "Temporarily lift a security freeze" or "Permanently remove a security freeze."',
-    "If lifting temporarily, set your desired date range (e.g. 1-2 days).",
-    'Click "Temporarily Lift a Freeze" or "Remove Freeze" to confirm.',
-    "You should see a green checkmark confirmation. The freeze auto-restores after a temporary lift.",
-  ],
-  transunion: [
-    <span key="tu-1">Log in to your account on the {bureauLink("TransUnion credit freeze page", BUREAU_INFO.transunion.unfreezeUrl)}.</span>,
-    'Verify your contact information and click "This Is Correct."',
-    'Your status will show "Frozen." Choose "Remove Freeze" or "Temporarily Lift Freeze."',
-    'To temporarily lift: enter your start and end dates, then click "Continue."',
-    'To permanently remove: click "Continue" on the removal confirmation page.',
-    'You should see a green "Freeze Removed" or "Freeze Temporarily Lifted" confirmation.',
-  ],
-  experian: [
-    <span key="ex-1">Log in to your account on the {bureauLink("Experian security freeze center", BUREAU_INFO.experian.unfreezeUrl)}.</span>,
-    'Navigate to the Security Freeze page. Your status will show "Your file is frozen."',
-    'To permanently unfreeze: click the "Unfrozen" tab to remove the freeze immediately.',
-    'To temporarily unfreeze: click "Schedule a thaw," select your date range, and click "Schedule thaw." (Experian uses the term "thaw" on their site.)',
-    "The unfreeze starts immediately and ends at 11:59 PM CT on your selected end date.",
-    'You can cancel a scheduled unfreeze anytime by clicking "Remove thaw" on Experian\'s site.',
-  ],
-};
+  const instructions: Record<Bureau, (string | React.ReactNode)[]> = {
+    equifax: [
+      <span key="eq-1">Log in to your account on the {link("Equifax security freeze page")}.</span>,
+      'Your dashboard will show "Your Equifax credit report is frozen." Click "Manage a freeze."',
+      'Choose "Temporarily lift a security freeze" or "Permanently remove a security freeze."',
+      "If lifting temporarily, set your desired date range (e.g. 1-2 days).",
+      'Click "Temporarily Lift a Freeze" or "Remove Freeze" to confirm.',
+      "You should see a green checkmark confirmation. The freeze auto-restores after a temporary lift.",
+    ],
+    transunion: [
+      <span key="tu-1">Log in to your account on the {link("TransUnion credit freeze page")}.</span>,
+      'Verify your contact information and click "This Is Correct."',
+      'Your status will show "Frozen." Choose "Remove Freeze" or "Temporarily Lift Freeze."',
+      'To temporarily lift: enter your start and end dates, then click "Continue."',
+      'To permanently remove: click "Continue" on the removal confirmation page.',
+      'You should see a green "Freeze Removed" or "Freeze Temporarily Lifted" confirmation.',
+    ],
+    experian: [
+      <span key="ex-1">Log in to your account on the {link("Experian security freeze center")}.</span>,
+      'Navigate to the Security Freeze page. Your status will show "Your file is frozen."',
+      'To permanently unfreeze: click the "Unfrozen" tab to remove the freeze immediately.',
+      'To temporarily unfreeze: click "Schedule a thaw," select your date range, and click "Schedule thaw." (Experian uses the term "thaw" on their site.)',
+      "The unfreeze starts immediately and ends at 11:59 PM CT on your selected end date.",
+      'You can cancel a scheduled unfreeze anytime by clicking "Remove thaw" on Experian\'s site.',
+    ],
+  };
+
+  return instructions[bureau];
+}
 
 export function UnfreezeWorkflowClient({
   userId,
@@ -70,6 +80,7 @@ export function UnfreezeWorkflowClient({
   const [unfreezeType, setUnfreezeType] = useState<"permanent" | "temporary">("permanent");
   const [thawStartDate, setThawStartDate] = useState("");
   const [thawEndDate, setThawEndDate] = useState("");
+  const [navModalOpen, setNavModalOpen] = useState(false);
 
   const info = BUREAU_INFO[bureau];
   const currentStatus = bureauStatuses.find((s) => s.bureau === bureau);
@@ -210,7 +221,7 @@ export function UnfreezeWorkflowClient({
       </div>
 
       <ol className="space-y-2">
-        {unfreezeInstructions[bureau].map((step, idx) => (
+        {getUnfreezeInstructions(bureau, () => setNavModalOpen(true)).map((step, idx) => (
           <li key={idx} className="flex gap-3 rounded-lg border px-3 py-2.5">
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
               {idx + 1}
@@ -220,15 +231,13 @@ export function UnfreezeWorkflowClient({
         ))}
       </ol>
 
-      <a
-        href={info.unfreezeUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        onClick={() => setNavModalOpen(true)}
         className="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 px-5 py-3 text-sm font-semibold text-primary transition-all hover:bg-primary/20 active:scale-[0.98]"
       >
         Open {info.name}
         <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </a>
+      </button>
 
       <p className="text-xs text-muted-foreground text-center">
         {info.unfreezeTip}
@@ -310,6 +319,30 @@ export function UnfreezeWorkflowClient({
           </Link>
         </div>
       </div>
+
+      {/* Navigation interstitial — reminds user to come back */}
+      <Dialog open={navModalOpen} onOpenChange={setNavModalOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>You&apos;re leaving 3Bfreeze</DialogTitle>
+            <DialogDescription>
+              After unfreezing {info.name}, come back to this tab to confirm the change.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={() => {
+                window.open(info.unfreezeUrl, "_blank", "noopener,noreferrer");
+                setNavModalOpen(false);
+              }}
+            >
+              Open {info.name}
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

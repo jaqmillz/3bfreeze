@@ -321,9 +321,26 @@ function SecurityTab() {
 
 function AccountTab({ email }: { email: string }) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
-  function handleExport() {
-    toast.success("Export requested. Check your email.");
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/export");
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `3bfreeze-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Data exported.");
+    } catch {
+      toast.error("Failed to export data.");
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -336,9 +353,10 @@ function AccountTab({ email }: { email: string }) {
           </div>
           <button
             onClick={handleExport}
-            className="text-xs font-medium text-primary hover:underline"
+            disabled={exporting}
+            className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
           >
-            Export
+            {exporting ? "Exporting..." : "Export"}
           </button>
         </div>
 

@@ -57,3 +57,6 @@ docs/*.pdf
 
 # Binary assets in docs (stored on Google Drive instead)
 docs/*.pptx
+
+# Google Drive symlink
+/gdrive

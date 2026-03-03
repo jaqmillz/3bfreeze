@@ -121,7 +121,7 @@ function ProgressBar({
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
     <div className="flex items-center gap-3">
-      <span className="w-24 text-right text-xs text-muted-foreground shrink-0">
+      <span className="w-16 sm:w-24 text-right text-xs text-muted-foreground shrink-0">
         {label}
       </span>
       <div className="flex-1 h-7 rounded-md bg-muted/50 relative overflow-hidden">
@@ -423,7 +423,7 @@ export function AdminDashboardClient({
 
       {/* Breach performance table */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <h2 className="text-sm font-semibold">Breach Code Performance</h2>
           <div className="flex items-center gap-2">
             <Select value={dateRange} onValueChange={setDateRange}>
@@ -439,24 +439,24 @@ export function AdminDashboardClient({
             </Select>
             <Button variant="outline" size="sm" onClick={exportCSV} className="gap-1.5 text-xs">
               <Download className="h-3.5 w-3.5" />
-              Export CSV
+              <span className="hidden sm:inline">Export</span> CSV
             </Button>
           </div>
         </div>
 
-        <div className="rounded-lg border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="rounded-lg border overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="w-8" />
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Code</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Name</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Visits</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Froze 1+</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">All 3</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Signups</th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">Conversion</th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground">Status</th>
+                <th className="px-2 sm:px-4 py-2 text-left text-xs font-medium text-muted-foreground">Code</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Name</th>
+                <th className="px-2 sm:px-4 py-2 text-right text-xs font-medium text-muted-foreground">Visits</th>
+                <th className="px-2 sm:px-4 py-2 text-right text-xs font-medium text-muted-foreground">Froze 1+</th>
+                <th className="px-2 sm:px-4 py-2 text-right text-xs font-medium text-muted-foreground">All 3</th>
+                <th className="px-2 sm:px-4 py-2 text-right text-xs font-medium text-muted-foreground">Signups</th>
+                <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground hidden sm:table-cell">Conversion</th>
+                <th className="px-2 sm:px-4 py-2 text-center text-xs font-medium text-muted-foreground">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -479,14 +479,14 @@ export function AdminDashboardClient({
                         <td className="w-8 text-center">
                           <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform inline-block ${isExpanded ? "rotate-180" : ""}`} />
                         </td>
-                        <td className="px-4 py-2.5 font-mono text-xs font-medium">{row.code}</td>
-                        <td className="px-4 py-2.5 text-xs">{row.name}</td>
-                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.visits.toLocaleString()}</td>
-                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.froze1.toLocaleString()}</td>
-                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.frozeAll.toLocaleString()}</td>
-                        <td className="px-4 py-2.5 text-right text-xs tabular-nums">{row.signups.toLocaleString()}</td>
-                        <td className="px-4 py-2.5 text-right text-xs tabular-nums font-medium">{conversion}%</td>
-                        <td className="px-4 py-2.5 text-center">
+                        <td className="px-2 sm:px-4 py-2.5 font-mono text-xs font-medium">{row.code}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-xs hidden sm:table-cell">{row.name}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right text-xs tabular-nums">{row.visits.toLocaleString()}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right text-xs tabular-nums">{row.froze1.toLocaleString()}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right text-xs tabular-nums">{row.frozeAll.toLocaleString()}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right text-xs tabular-nums">{row.signups.toLocaleString()}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right text-xs tabular-nums font-medium hidden sm:table-cell">{conversion}%</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-center">
                           <Badge variant={row.active ? "default" : "secondary"} className="text-[10px]">
                             {row.active ? "Active" : "Inactive"}
                           </Badge>

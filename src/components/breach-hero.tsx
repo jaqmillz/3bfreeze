@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, ChevronDown, ChevronUp, LockOpen, ShieldAlert } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronUp, LockOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { FadeUp } from "@/components/animate";
 import type { BreachInfo } from "@/lib/breach-codes";
 
 export function BreachHero({
   breach,
   collapsible = false,
+  onContinue,
 }: {
   breach: BreachInfo;
   collapsible?: boolean;
+  onContinue?: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -38,31 +41,24 @@ export function BreachHero({
   return (
     <div className="space-y-6 pb-8">
       <FadeUp>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">
-            <AlertTriangle className="h-3 w-3" />
-            Data Breach Alert
-          </span>
-          {collapsible && (
+        {collapsible && (
+          <div className="flex justify-end">
             <button
               onClick={() => setExpanded(false)}
-              className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               Collapse
               <ChevronUp className="h-3.5 w-3.5" />
             </button>
-          )}
-        </div>
-      </FadeUp>
-
-      <FadeUp delay={collapsible ? 0 : 0.1}>
+          </div>
+        )}
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {breach.name}
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-2 text-base leading-relaxed text-muted-foreground">
           {breach.description}
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span>{breach.date}</span>
           {breach.recordsAffected && (
             <>
@@ -82,7 +78,7 @@ export function BreachHero({
             {breach.dataExposed.map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-destructive/20 bg-destructive/5 px-2.5 py-0.5 text-xs font-medium text-destructive"
+                className="rounded-full border border-destructive/20 bg-destructive/5 px-2.5 py-0.5 text-sm font-medium text-destructive"
               >
                 {item}
               </span>
@@ -98,10 +94,10 @@ export function BreachHero({
               <LockOpen className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold">
+              <p className="text-base font-semibold">
                 Your credit file is like a door that was left unlocked.
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-base text-muted-foreground">
                 Freezing it is like adding a deadbolt &mdash; free and instant.
                 No one can open new accounts in your name while your credit is
                 frozen.
@@ -111,15 +107,13 @@ export function BreachHero({
         </div>
       </FadeUp>
 
-      <FadeUp delay={collapsible ? 0 : 0.4}>
-        <div className="flex items-center gap-2 rounded-lg border px-3 py-2.5">
-          <ShieldAlert className="h-4 w-4 shrink-0 text-primary" />
-          <p className="text-sm text-muted-foreground">
-            Follow the steps below to freeze your credit at all three bureaus.
-            It takes about 15 minutes and costs nothing.
-          </p>
-        </div>
-      </FadeUp>
+      {onContinue && (
+        <FadeUp delay={collapsible ? 0 : 0.4}>
+          <Button className="w-full" size="lg" onClick={onContinue}>
+            Freeze your credit — it&apos;s free
+          </Button>
+        </FadeUp>
+      )}
     </div>
   );
 }

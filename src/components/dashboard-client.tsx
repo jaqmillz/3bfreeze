@@ -636,11 +636,11 @@ export function DashboardClient({
   }
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-8 pb-24 overflow-x-hidden">
       {/* Status + Actions */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <FreezeShield frozenCount={frozenCount} />
-        <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
           <Link
             href="/freeze-workflow"
             className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
@@ -697,7 +697,7 @@ export function DashboardClient({
             className="block rounded-lg border bg-card p-4 transition-colors hover:border-primary/20"
           >
             <h3 className="text-sm font-semibold">Get your free credit report</h3>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground break-words">
               You&apos;re entitled to a free report from each bureau every year at annualcreditreport.com. Review them for accounts you don&apos;t recognize.
             </p>
           </a>
