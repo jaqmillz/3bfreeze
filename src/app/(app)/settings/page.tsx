@@ -47,10 +47,16 @@ export default async function SettingsPage() {
     ...DEFAULT_NOTIFICATION_PREFERENCES,
   };
 
+  const hasPasswordIdentity = user.identities?.some(
+    (i) => i.provider === "email"
+  );
+  const isOAuthUser = !hasPasswordIdentity;
+
   return (
     <SettingsClient
       profile={userProfile}
       notificationPreferences={preferences}
+      isOAuthUser={isOAuthUser}
     />
   );
 }

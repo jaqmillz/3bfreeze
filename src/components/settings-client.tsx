@@ -27,9 +27,11 @@ import { getPasswordStrength } from "@/lib/utils";
 export function SettingsClient({
   profile,
   notificationPreferences,
+  isOAuthUser = false,
 }: {
   profile: UserProfile;
   notificationPreferences: NotificationPreferences;
+  isOAuthUser?: boolean;
 }) {
   const [tab, setTab] = useState<"profile" | "notifications" | "security" | "account">("profile");
 
@@ -62,7 +64,7 @@ export function SettingsClient({
 
       {tab === "profile" && <ProfileTab profile={profile} />}
       {tab === "notifications" && <NotificationsTab preferences={notificationPreferences} />}
-      {tab === "security" && <SecurityTab />}
+      {tab === "security" && <SecurityTab isOAuthUser={isOAuthUser} />}
       {tab === "account" && <AccountTab email={profile.email} />}
     </div>
   );
@@ -213,11 +215,6 @@ function NotificationsTab({
       description: "Alert when a scheduled unfreeze is about to expire.",
     },
     {
-      key: "weekly_summary" as const,
-      label: "Weekly summary",
-      description: "Weekly email with your freeze status across all bureaus.",
-    },
-    {
       key: "security_alerts" as const,
       label: "Security alerts",
       description: "Important security notifications about your account.",
@@ -257,7 +254,7 @@ function NotificationsTab({
 // Security Tab
 // ---------------------------------------------------------------------------
 
-function SecurityTab() {
+function SecurityTab({ isOAuthUser = false }: { isOAuthUser?: boolean }) {
   const router = useRouter();
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -277,20 +274,24 @@ function SecurityTab() {
   return (
     <>
       <div className="space-y-1">
-        <div className="flex items-center justify-between py-4">
-          <div className="space-y-0.5">
-            <p className="text-sm font-medium">Password</p>
-            <p className="text-xs text-muted-foreground">Update your password.</p>
-          </div>
-          <button
-            onClick={() => setPasswordModalOpen(true)}
-            className="text-xs font-medium text-primary hover:underline"
-          >
-            Change
-          </button>
-        </div>
+        {!isOAuthUser && (
+          <>
+            <div className="flex items-center justify-between py-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Password</p>
+                <p className="text-xs text-muted-foreground">Update your password.</p>
+              </div>
+              <button
+                onClick={() => setPasswordModalOpen(true)}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Change
+              </button>
+            </div>
 
-        <div className="h-px bg-border" />
+            <div className="h-px bg-border" />
+          </>
+        )}
 
         <div className="flex items-center justify-between py-4">
           <div className="space-y-0.5">
@@ -307,10 +308,12 @@ function SecurityTab() {
         </div>
       </div>
 
-      <ChangePasswordModal
-        open={passwordModalOpen}
-        onOpenChange={setPasswordModalOpen}
-      />
+      {!isOAuthUser && (
+        <ChangePasswordModal
+          open={passwordModalOpen}
+          onOpenChange={setPasswordModalOpen}
+        />
+      )}
     </>
   );
 }

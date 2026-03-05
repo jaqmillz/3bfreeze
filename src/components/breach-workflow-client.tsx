@@ -204,7 +204,7 @@ export function BreachWorkflowClient({ breach }: { breach: BreachInfo }) {
   // ---------------------------------------------------------------------------
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 pb-24">
+    <div className="mx-auto max-w-2xl space-y-4 pb-4">
       <BreachHero
         breach={breach}
         collapsible={currentStep !== "checklist"}

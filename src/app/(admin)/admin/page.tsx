@@ -1,219 +1,124 @@
 import { createServiceClient } from "@/lib/supabase/admin";
 import { AdminDashboardClient } from "./admin-client";
 
+function getSevenDaysAgo() {
+  return new Date(Date.now() - 7 * 86_400_000).toISOString();
+}
+
 export default async function AdminDashboardPage() {
   const supabase = createServiceClient();
+  const sevenDaysAgo = getSevenDaysAgo();
 
   const [
     { count: totalUsers },
-    { data: bureauStats },
-    { data: breachVisits },
-    { data: signupSources },
+    { data: bureauFreezes },
+    { data: funnel },
+    { data: sources },
     { count: weeklySignups },
-    { data: breachCodes },
-    { data: userSignups },
-    { data: breachUsers },
-    { data: allBureauStatuses },
-    { data: freezeEvents },
+    { data: signupDays },
+    { data: visitDays },
+    { data: freezeStats },
+    { data: breachVisits },
+    { count: directSignupCount },
   ] = await Promise.all([
-    // Total users
+    // Scalar counts (already efficient)
     supabase.from("users").select("*", { count: "exact", head: true }),
 
-    // Bureau freeze counts
+    // SQL aggregation RPCs — all heavy lifting in PostgreSQL
+    supabase.rpc("admin_bureau_freeze_counts"),
+    supabase.rpc("admin_breach_funnel"),
+    supabase.rpc("admin_signup_source_breakdown"),
     supabase
-      .from("bureau_status")
-      .select("bureau, status"),
+      .from("users")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", sevenDaysAgo),
+    supabase.rpc("admin_signup_trend"),
+    supabase.rpc("admin_visit_trend"),
+    supabase.rpc("admin_overall_freeze_stats"),
 
-    // Breach visits (all)
+    // Raw visits for client-side date range filtering
     supabase
       .from("breach_visits")
       .select("breach_code, source, created_at")
       .order("created_at", { ascending: false }),
 
-    // Signup source breakdown (include id for freeze stats)
-    supabase
-      .from("users")
-      .select("id, signup_source, signup_breach_code"),
-
-    // Signups this week
+    // Direct signups count (users without breach code)
     supabase
       .from("users")
       .select("*", { count: "exact", head: true })
-      // eslint-disable-next-line react-hooks/purity -- server component renders once per request
-      .gte("created_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
-
-    // All breach codes for reference
-    supabase
-      .from("breach_codes")
-      .select("code, name, active")
-      .order("created_at", { ascending: true }),
-
-    // User signup dates for trend chart
-    supabase
-      .from("users")
-      .select("created_at")
-      .order("created_at", { ascending: true }),
-
-    // Users who signed up via breach code (for funnel)
-    supabase
-      .from("users")
-      .select("id, signup_breach_code")
-      .not("signup_breach_code", "is", null),
-
-    // All bureau statuses (for funnel progress)
-    supabase
-      .from("bureau_status")
-      .select("user_id, bureau, status"),
-
-    // Anonymous freeze events (for breach funnel)
-    supabase
-      .from("breach_freeze_events")
-      .select("breach_code, bureau, session_id"),
+      .is("signup_breach_code", null),
   ]);
 
-  // Compute bureau breakdown
+  // Transform bureau freeze counts
   const frozenByBureau = { equifax: 0, transunion: 0, experian: 0 };
-  for (const row of bureauStats ?? []) {
-    if (row.status === "frozen" && row.bureau in frozenByBureau) {
-      frozenByBureau[row.bureau as keyof typeof frozenByBureau]++;
+  for (const row of (bureauFreezes ?? []) as { bureau: string; frozen_count: number }[]) {
+    if (row.bureau in frozenByBureau) {
+      frozenByBureau[row.bureau as keyof typeof frozenByBureau] = Number(row.frozen_count);
     }
   }
   const totalFrozen = Object.values(frozenByBureau).reduce((a, b) => a + b, 0);
 
-  // Build per-user frozen count map
-  const userFrozenCount = new Map<string, number>();
-  for (const bs of allBureauStatuses ?? []) {
-    if (bs.status === "frozen") {
-      userFrozenCount.set(bs.user_id, (userFrozenCount.get(bs.user_id) ?? 0) + 1);
-    }
+  // Transform source breakdown
+  const sourceBreakdown: Record<string, number> = {};
+  for (const row of (sources ?? []) as { source: string; user_count: number }[]) {
+    sourceBreakdown[row.source] = Number(row.user_count);
   }
 
-  // Compute breach funnel: visits → signups → froze 1+ → froze all 3
-  const breachFunnel: Record<string, {
+  // Transform trends
+  const signupTrend = ((signupDays ?? []) as { day: string; signups: number }[]).map((r) => ({
+    date: String(r.day),
+    signups: Number(r.signups),
+  }));
+  const visitTrend = ((visitDays ?? []) as { day: string; visits: number }[]).map((r) => ({
+    date: String(r.day),
+    visits: Number(r.visits),
+  }));
+
+  // Transform breach funnel
+  const breachFunnel = ((funnel ?? []) as {
+    code: string;
+    name: string;
+    active: boolean;
     visits: number;
     signups: number;
     froze1: number;
     froze2: number;
-    frozeAll: number;
-    name: string;
-    active: boolean;
-  }> = {};
+    froze_all: number;
+  }[]).map((r) => ({
+    code: r.code,
+    name: r.name,
+    active: r.active,
+    visits: Number(r.visits),
+    signups: Number(r.signups),
+    froze1: Number(r.froze1),
+    froze2: Number(r.froze2),
+    frozeAll: Number(r.froze_all),
+  }));
 
-  for (const bc of breachCodes ?? []) {
-    breachFunnel[bc.code] = { visits: 0, signups: 0, froze1: 0, froze2: 0, frozeAll: 0, name: bc.name, active: bc.active };
-  }
+  // Transform overall + direct freeze stats
+  const statsRows = (freezeStats ?? []) as {
+    category: string;
+    froze1: number;
+    froze2: number;
+    froze_all: number;
+    session_count: number;
+  }[];
+  const allRow = statsRows.find((r) => r.category === "all");
+  const directRow = statsRows.find((r) => r.category === "direct");
 
-  // Count visits
-  for (const visit of breachVisits ?? []) {
-    if (!breachFunnel[visit.breach_code]) {
-      breachFunnel[visit.breach_code] = { visits: 0, signups: 0, froze1: 0, froze2: 0, frozeAll: 0, name: visit.breach_code, active: false };
-    }
-    breachFunnel[visit.breach_code].visits++;
-  }
+  const overallStats = {
+    signups: totalUsers ?? 0,
+    froze1: Number(allRow?.froze1 ?? 0),
+    froze2: Number(allRow?.froze2 ?? 0),
+    frozeAll: Number(allRow?.froze_all ?? 0),
+  };
 
-  // Count signups per breach code
-  for (const user of breachUsers ?? []) {
-    const code = user.signup_breach_code;
-    if (!code || !breachFunnel[code]) continue;
-    breachFunnel[code].signups++;
-  }
-
-  // Count anonymous freeze events per breach code (from breach_freeze_events table)
-  // Group by session_id to count unique sessions that froze 1+, 2+, or all 3
-  const sessionBureaus = new Map<string, { code: string | null; bureaus: Set<string> }>();
-  for (const event of freezeEvents ?? []) {
-    const key = `${event.session_id}:${event.breach_code ?? "__direct__"}`;
-    if (!sessionBureaus.has(key)) {
-      sessionBureaus.set(key, { code: event.breach_code, bureaus: new Set() });
-    }
-    sessionBureaus.get(key)!.bureaus.add(event.bureau);
-  }
-
-  for (const [, { code, bureaus }] of sessionBureaus) {
-    if (!code || !breachFunnel[code]) continue;
-    if (bureaus.size >= 1) breachFunnel[code].froze1++;
-    if (bureaus.size >= 2) breachFunnel[code].froze2++;
-    if (bureaus.size >= 3) breachFunnel[code].frozeAll++;
-  }
-
-  // Signup source breakdown
-  const sourceBreakdown: Record<string, number> = {};
-  for (const user of signupSources ?? []) {
-    const src = user.signup_source ?? "unknown";
-    sourceBreakdown[src] = (sourceBreakdown[src] ?? 0) + 1;
-  }
-
-  // Overall funnel: all anonymous freeze sessions + signed-up users
-  const overallStats = { signups: totalUsers ?? 0, froze1: 0, froze2: 0, frozeAll: 0 };
-  const directStats = { signups: 0, froze1: 0, froze2: 0, frozeAll: 0 };
-
-  // Count all unique anonymous sessions that froze (from freeze events)
-  const allSessionBureaus = new Map<string, Set<string>>();
-  const directSessionBureaus = new Map<string, Set<string>>();
-  for (const event of freezeEvents ?? []) {
-    if (!allSessionBureaus.has(event.session_id)) {
-      allSessionBureaus.set(event.session_id, new Set());
-    }
-    allSessionBureaus.get(event.session_id)!.add(event.bureau);
-
-    if (!event.breach_code) {
-      if (!directSessionBureaus.has(event.session_id)) {
-        directSessionBureaus.set(event.session_id, new Set());
-      }
-      directSessionBureaus.get(event.session_id)!.add(event.bureau);
-    }
-  }
-
-  for (const [, bureaus] of allSessionBureaus) {
-    if (bureaus.size >= 1) overallStats.froze1++;
-    if (bureaus.size >= 2) overallStats.froze2++;
-    if (bureaus.size >= 3) overallStats.frozeAll++;
-  }
-
-  for (const [, bureaus] of directSessionBureaus) {
-    directStats.signups++; // count unique direct sessions
-    if (bureaus.size >= 1) directStats.froze1++;
-    if (bureaus.size >= 2) directStats.froze2++;
-    if (bureaus.size >= 3) directStats.frozeAll++;
-  }
-
-  // Also count signed-up users without breach codes
-  const directSignupCount = (signupSources ?? []).filter(u => !u.signup_breach_code).length;
-  directStats.signups = Math.max(directStats.signups, directSignupCount);
-
-  // Signup trend: group by day
-  const signupTrend: { date: string; signups: number }[] = [];
-  const dayMap = new Map<string, number>();
-  for (const u of userSignups ?? []) {
-    const day = new Date(u.created_at).toISOString().split("T")[0];
-    dayMap.set(day, (dayMap.get(day) ?? 0) + 1);
-  }
-  if (dayMap.size > 0) {
-    const sortedDays = [...dayMap.keys()].sort();
-    const start = new Date(sortedDays[0]);
-    const end = new Date(sortedDays[sortedDays.length - 1]);
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const key = d.toISOString().split("T")[0];
-      signupTrend.push({ date: key, signups: dayMap.get(key) ?? 0 });
-    }
-  }
-
-  // Visit trend: group by day
-  const visitTrend: { date: string; visits: number }[] = [];
-  const visitDayMap = new Map<string, number>();
-  for (const v of breachVisits ?? []) {
-    const day = new Date(v.created_at).toISOString().split("T")[0];
-    visitDayMap.set(day, (visitDayMap.get(day) ?? 0) + 1);
-  }
-  if (visitDayMap.size > 0) {
-    const sortedDays = [...visitDayMap.keys()].sort();
-    const start = new Date(sortedDays[0]);
-    const end = new Date(sortedDays[sortedDays.length - 1]);
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const key = d.toISOString().split("T")[0];
-      visitTrend.push({ date: key, visits: visitDayMap.get(key) ?? 0 });
-    }
-  }
+  const directStats = {
+    signups: Math.max(Number(directRow?.session_count ?? 0), directSignupCount ?? 0),
+    froze1: Number(directRow?.froze1 ?? 0),
+    froze2: Number(directRow?.froze2 ?? 0),
+    frozeAll: Number(directRow?.froze_all ?? 0),
+  };
 
   return (
     <AdminDashboardClient
@@ -221,10 +126,7 @@ export default async function AdminDashboardPage() {
       totalFrozen={totalFrozen}
       frozenByBureau={frozenByBureau}
       weeklySignups={weeklySignups ?? 0}
-      breachFunnel={Object.entries(breachFunnel).map(([code, data]) => ({
-        code,
-        ...data,
-      }))}
+      breachFunnel={breachFunnel}
       sourceBreakdown={sourceBreakdown}
       breachVisits={(breachVisits ?? []) as { breach_code: string; source: string; created_at: string }[]}
       signupTrend={signupTrend}

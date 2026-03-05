@@ -1,28 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getBreachByCode } from "@/lib/breach-codes";
-
-// Simple in-memory rate limiter: max 20 requests per IP per minute
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 20;
-const RATE_LIMIT_WINDOW_MS = 60_000;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimit.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
-    // Rate limit by IP
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    if (isRateLimited(ip)) {
+    const ip = getClientIp(request);
+    if (await isRateLimited(ip, "breach-visit")) {
       return new NextResponse(null, { status: 429 });
     }
 

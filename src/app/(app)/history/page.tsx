@@ -17,7 +17,8 @@ export default async function HistoryPage() {
     .from("activity_log")
     .select("*")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(200);
 
   return (
     <HistoryClient entries={(activityLog as ActivityLogEntry[]) ?? []} />

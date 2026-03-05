@@ -52,11 +52,6 @@ Thumbs.db
 # Supabase local
 supabase/.temp/
 
-# Generated docs (PDFs built from markdown)
-docs/*.pdf
-
-# Binary assets in docs (stored on Google Drive instead)
-docs/*.pptx
-
-# Google Drive symlink
+# docs is a symlink to gdrive — ignore both
+/docs
 /gdrive

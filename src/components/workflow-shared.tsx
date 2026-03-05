@@ -233,7 +233,7 @@ export function ChecklistStep({
   const allChecked = checkedItems.every(Boolean);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Before you start</h2>
         <p className="mt-1 text-base text-muted-foreground">
@@ -258,7 +258,7 @@ export function ChecklistStep({
         ))}
       </div>
 
-      <div className="flex items-center justify-between pt-4">
+      <div className="sticky bottom-0 z-10 flex items-center justify-between bg-background pt-4 pb-6">
         {!allChecked ? (
           <button
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -345,7 +345,7 @@ export function BureauStep({
   const label = getNextStepLabel(bureau);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold tracking-tight">Freeze {info.name}</h2>
         {frozen && (
@@ -370,6 +370,8 @@ export function BureauStep({
         ))}
       </ol>
 
+      <p className="text-sm text-muted-foreground text-center">{info.tip}</p>
+
       <button
         onClick={() => onOpenNavModal(bureau)}
         className="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 px-5 py-3 text-base font-semibold text-primary transition-all hover:bg-primary/20 active:scale-[0.98]"
@@ -378,7 +380,7 @@ export function BureauStep({
         <ExternalLink className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </button>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="sticky bottom-0 z-10 space-y-3 bg-background pt-4 pb-6">
         {frozen ? (
           <Button
             size="sm"
@@ -390,29 +392,41 @@ export function BureauStep({
             {label}
           </Button>
         ) : (
-          <>
+          <Button
+            size="sm"
+            onClick={() => onConfirmFreeze(bureau)}
+            disabled={saving}
+            className="w-full"
+          >
+            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Confirm Freeze {label === "Finish" ? "& Finish" : `& ${label}`}
+          </Button>
+        )}
+        <div className="flex items-center justify-between">
+          {onBack ? (
             <Button
+              variant="ghost"
               size="sm"
-              onClick={() => onConfirmFreeze(bureau)}
-              disabled={saving}
-              className="w-full"
+              onClick={onBack}
+              className="text-muted-foreground"
             >
-              {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Confirm Freeze {label === "Finish" ? "& Finish" : `& ${label}`}
+              Back
             </Button>
-            <button
+          ) : (
+            <div />
+          )}
+          {!frozen && (
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => onReportIssue(bureau)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground"
             >
               I had issues
-            </button>
-          </>
-        )}
+            </Button>
+          )}
+        </div>
       </div>
-
-      <p className="text-sm text-muted-foreground text-center">{info.tip}</p>
-
-      <NavigationFooter onBack={onBack} />
     </div>
   );
 }
@@ -495,7 +509,7 @@ export function CompletionStep({
 
       {children}
 
-      <div className="flex items-center justify-between pt-2">
+      <div className="sticky bottom-0 z-10 flex items-center justify-between bg-background pt-4 pb-6">
         <button
           onClick={onBack}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"

@@ -19,7 +19,10 @@ export default async function UnfreezeWorkflowPage({ searchParams }: Props) {
   }
 
   const params = await searchParams;
-  const bureau = (params.bureau ?? "equifax") as Bureau;
+  const VALID_BUREAUS: Bureau[] = ["equifax", "transunion", "experian"];
+  const bureau: Bureau = VALID_BUREAUS.includes(params.bureau as Bureau)
+    ? (params.bureau as Bureau)
+    : "equifax";
 
   const { data: bureauStatuses } = await supabase
     .from("bureau_status")

@@ -316,38 +316,23 @@ export function FreezeWorkflowClient({
   }
 
   // ---------------------------------------------------------------------------
-  // Completion step wrapper
+  // Completion side-effect
   // ---------------------------------------------------------------------------
 
-  function FreezeCompletionStep() {
-    const hasSavedCompletion = useRef(false);
-
-    useEffect(() => {
-      if (!hasSavedCompletion.current) {
-        hasSavedCompletion.current = true;
-        handleCompletionView();
-      }
-    }, []);
-
-    return (
-      <CompletionStep
-        isBureauFrozen={(b) => getBureauStatus(b) === "frozen"}
-        onNavigateStep={navigateStep}
-        onBack={() => navigateStep(getPrevStep(currentStep))}
-      >
-        <Button size="sm" asChild>
-          <Link href="/dashboard">Dashboard</Link>
-        </Button>
-      </CompletionStep>
-    );
-  }
+  const hasTriggeredCompletion = useRef(false);
+  useEffect(() => {
+    if (currentStep === "complete" && !hasTriggeredCompletion.current) {
+      hasTriggeredCompletion.current = true;
+      handleCompletionView();
+    }
+  }, [currentStep]); // eslint-disable-line react-hooks/exhaustive-deps -- fire once on reaching completion
 
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 pb-24">
+    <div className="mx-auto max-w-2xl space-y-4 pb-4">
       <StepperHeader
         currentStep={currentStep}
         isStepCompleted={isStepCompleted}
@@ -403,7 +388,17 @@ export function FreezeWorkflowClient({
           saving={saving}
         />
       )}
-      {currentStep === "complete" && <FreezeCompletionStep />}
+      {currentStep === "complete" && (
+        <CompletionStep
+          isBureauFrozen={(b) => getBureauStatus(b) === "frozen"}
+          onNavigateStep={navigateStep}
+          onBack={() => navigateStep(getPrevStep(currentStep))}
+        >
+          <Button size="sm" asChild>
+            <Link href="/dashboard">Dashboard</Link>
+          </Button>
+        </CompletionStep>
+      )}
 
       <FreezeIssueModal
         open={issueModalOpen}

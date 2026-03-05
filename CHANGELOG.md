@@ -1,5 +1,41 @@
 # Changelog
 
+## [v2.4.0] — 2026-03-05
+
+### Security & Bug Fixes
+- Fix RLS policy on `freeze_issues` — replace overly broad `USING (true)` with `auth.uid() = user_id`
+- Revoke `delete_user_account` RPC from `anon` and `public` roles (defense in depth)
+- Add security headers: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`
+- Validate bureau URL parameter in unfreeze workflow (prevent arbitrary values)
+- Deduplicate breach code lookup with `React.cache()` (was querying twice per request)
+- Fix `FreezeCompletionStep` defined inside render (caused remounting every render)
+
+### Infrastructure
+- Add distributed rate limiting via Upstash Redis (`@upstash/ratelimit`) with graceful no-op fallback
+- Rate-limit all API routes: `breach-freeze`, `breach-visit`, `breach-validate`, `freeze-issue`, `export`
+- Add Sentry error tracking (`@sentry/nextjs`) with client, server, and edge configs
+- Add React error boundaries for app routes, admin routes, and root layout
+- Add loading skeletons for app and admin route groups
+- Route breach visit tracking through rate-limited `/api/breach-visit` API
+- Add explicit column selects and row limits on data export route
+- Add `.limit(200)` on history page activity log query
+- **Migration 009**: Create `delete_user_account` RPC (SECURITY DEFINER)
+- **Migration 010**: Fix `freeze_issues` RLS + revoke dangerous function access
+- **Migration 011**: Admin dashboard SQL aggregation functions — moves all heavy computation from Node.js to PostgreSQL (bureau counts, breach funnel, signup/visit trends, freeze session stats)
+
+### UX Improvements
+- Sticky action buttons on workflow screens — Confirm Freeze, Back, and I Had Issues always visible at bottom of viewport
+- Tighter spacing on workflow steps (`space-y-6` → `space-y-4`) for better viewport fit
+- Back and "I had issues" buttons on same row as ghost-style buttons
+- Move bureau tip text above action area in freeze steps
+- Restore accurate all-time funnel stats on admin dashboard (removed premature query windowing)
+- Hide password change for OAuth-only accounts (detect via `user.identities`)
+- Remove weekly summary notification toggle (email not yet set up)
+
+### Housekeeping
+- Remove `docs/` from repo (docs now live in Google Drive)
+- Update `.gitignore` for docs paths
+
 ## [v2.3.0] — 2026-02-24
 
 ### Features
